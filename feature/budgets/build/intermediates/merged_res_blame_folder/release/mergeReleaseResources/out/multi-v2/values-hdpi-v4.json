@@ -1,0 +1,36 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.zincstate.manifest.feature.budgets-release-69:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.zincstate.manifest.feature.budgets-mergeReleaseResources-67:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+com.zincstate.manifest.core.model-runtime-release-0 /Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/6334af6fc6f824e8f11ec4f734d5b880/transformed/runtime-release/res
+com.zincstate.manifest.core.model-pngs-1 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/generated/res/pngs/release
+com.zincstate.manifest.core.model-resValues-2 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/generated/res/resValues/release
+com.zincstate.manifest.core.model-updated_navigation_xml-3 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/generated/updated_navigation_xml/release
+com.zincstate.manifest.core.model-mergeReleaseResources-4 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+com.zincstate.manifest.core.model-mergeReleaseResources-5 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+com.zincstate.manifest.core.model-release-6 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/build/intermediates/merged_res/release/mergeReleaseResources
+com.zincstate.manifest.core.model-main-7 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/src/main/res
+com.zincstate.manifest.core.model-release-8 /Users/shivanshjasathi/AndroidStudioProjects/Manifest/core/model/src/release/res

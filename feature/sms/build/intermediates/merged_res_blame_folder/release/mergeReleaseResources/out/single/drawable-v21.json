@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/abc_dialog_material_background.xml",
+        "source": "com.zincstate.manifest.feature.sms-appcompat-1.2.0-26:/drawable-v21/abc_dialog_material_background.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/notification_action_background.xml",
+        "source": "com.zincstate.manifest.feature.sms-core-1.13.1-59:/drawable-v21/notification_action_background.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/abc_btn_colored_material.xml",
+        "source": "com.zincstate.manifest.feature.sms-appcompat-1.2.0-26:/drawable-v21/abc_btn_colored_material.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/abc_edit_text_material.xml",
+        "source": "com.zincstate.manifest.feature.sms-appcompat-1.2.0-26:/drawable-v21/abc_edit_text_material.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/abc_action_bar_item_background_material.xml",
+        "source": "com.zincstate.manifest.feature.sms-appcompat-1.2.0-26:/drawable-v21/abc_action_bar_item_background_material.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.sms-release-69:/drawable-v21/abc_list_divider_material.xml",
+        "source": "com.zincstate.manifest.feature.sms-appcompat-1.2.0-26:/drawable-v21/abc_list_divider_material.xml"
+    }
+]

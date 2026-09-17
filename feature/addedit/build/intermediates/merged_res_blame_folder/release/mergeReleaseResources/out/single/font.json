@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.addedit-release-70:/font/poppins_medium.ttf",
+        "source": "com.zincstate.manifest.feature.addedit-release-66:/font/poppins_medium.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.addedit-release-70:/font/poppins_semibold.ttf",
+        "source": "com.zincstate.manifest.feature.addedit-release-66:/font/poppins_semibold.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.addedit-release-70:/font/poppins_bold.ttf",
+        "source": "com.zincstate.manifest.feature.addedit-release-66:/font/poppins_bold.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.addedit-release-70:/font/poppins_regular.ttf",
+        "source": "com.zincstate.manifest.feature.addedit-release-66:/font/poppins_regular.ttf"
+    }
+]

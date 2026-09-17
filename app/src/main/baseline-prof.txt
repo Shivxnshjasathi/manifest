@@ -1,0 +1,13 @@
+# Basic manual baseline profile to speed up Compose and App startup
+Lcom/zincstate/manifest/MainActivity;
+Lcom/zincstate/manifest/ManifestApplication;
+Lcom/zincstate/manifest/navigation/ManifestNavGraphKt;
+Lcom/zincstate/manifest/feature/transactions/TransactionsScreenKt;
+Lcom/zincstate/manifest/feature/transactions/TransactionsViewModel;
+Lcom/zincstate/manifest/core/ui/theme/ThemeKt;
+Lcom/zincstate/manifest/core/database/ManifestDatabase;
+Lcom/zincstate/manifest/core/database/dao/TransactionDao;
+Lcom/zincstate/manifest/core/common/DateUtils;
+Lcom/zincstate/manifest/core/common/CurrencyFormatter;
+HSPLcom/zincstate/manifest/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/zincstate/manifest/ManifestApplication;->onCreate()V

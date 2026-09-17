@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/font/poppins_semibold.ttf",
+        "source": "com.zincstate.manifest.feature.settings-release-71:/font/poppins_semibold.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/font/poppins_regular.ttf",
+        "source": "com.zincstate.manifest.feature.settings-release-71:/font/poppins_regular.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/font/poppins_bold.ttf",
+        "source": "com.zincstate.manifest.feature.settings-release-71:/font/poppins_bold.ttf"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/font/poppins_medium.ttf",
+        "source": "com.zincstate.manifest.feature.settings-release-71:/font/poppins_medium.ttf"
+    }
+]

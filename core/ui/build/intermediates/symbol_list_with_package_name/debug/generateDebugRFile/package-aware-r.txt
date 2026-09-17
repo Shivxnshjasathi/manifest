@@ -1,0 +1,5 @@
+com.zincstate.manifest.core.ui
+font poppins_bold
+font poppins_medium
+font poppins_regular
+font poppins_semibold

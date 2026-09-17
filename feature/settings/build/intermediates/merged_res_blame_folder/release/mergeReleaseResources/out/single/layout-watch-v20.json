@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "source": "com.zincstate.manifest.feature.settings-appcompat-1.2.0-31:/layout-watch-v20/abc_alert_dialog_title_material.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "source": "com.zincstate.manifest.feature.settings-appcompat-1.2.0-31:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
+    }
+]

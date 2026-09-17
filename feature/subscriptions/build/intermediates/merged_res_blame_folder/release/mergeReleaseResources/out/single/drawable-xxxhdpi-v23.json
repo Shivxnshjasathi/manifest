@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.subscriptions-release-69:/drawable-xxxhdpi-v23/fingerprint_dialog_error.png",
+        "source": "com.zincstate.manifest.feature.subscriptions-biometric-1.1.0-6:/drawable-xxxhdpi-v23/fingerprint_dialog_error.png"
+    }
+]

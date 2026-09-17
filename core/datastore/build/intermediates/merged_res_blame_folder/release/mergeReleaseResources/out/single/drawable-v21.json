@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-v21/notification_action_background.xml",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-v21/notification_action_background.xml"
+    }
+]

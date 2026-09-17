@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_open_enter.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_open_enter.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_open_exit.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_open_exit.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_close_enter.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_close_enter.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_fade_exit.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_fade_exit.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_close_exit.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_close_exit.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.common-release-33:/animator/fragment_fade_enter.xml",
+        "source": "com.zincstate.manifest.core.common-fragment-1.5.1-17:/animator/fragment_fade_enter.xml"
+    }
+]

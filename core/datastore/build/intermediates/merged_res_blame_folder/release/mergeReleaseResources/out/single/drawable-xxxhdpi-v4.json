@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_answer.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_answer_low.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_answer_video.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_answer_video_low.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_answer_video_low.png"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_decline.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "com.zincstate.manifest.core.datastore-release-18:/drawable-xxxhdpi-v4/ic_call_decline_low.png",
+        "source": "com.zincstate.manifest.core.datastore-core-1.13.1-13:/drawable-xxxhdpi-v4/ic_call_decline_low.png"
+    }
+]

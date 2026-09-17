@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.zincstate.manifest.feature.settings-core-1.13.1-65:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.zincstate.manifest.feature.settings-core-1.13.1-65:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-v21/notification_action.xml",
+        "source": "com.zincstate.manifest.feature.settings-core-1.13.1-65:/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "com.zincstate.manifest.feature.settings-release-75:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.zincstate.manifest.feature.settings-core-1.13.1-65:/layout-v21/notification_template_custom_big.xml"
+    }
+]
