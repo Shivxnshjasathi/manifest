@@ -323,6 +323,7 @@
     <integer name="abc_config_activityShortDur">150</integer>
     <integer name="cancel_button_image_alpha">127</integer>
     <integer name="config_tooltipAnimTime">150</integer>
+    <integer name="m3c_window_layout_in_display_cutout_mode">1</integer>
     <integer name="status_bar_notification_info_maxnum">999</integer>
     <string name="abc_action_bar_home_description">Navigate home</string>
     <string name="abc_action_bar_up_description">Navigate up</string>
@@ -351,7 +352,15 @@
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with <ns1:g example="Mail" id="application_name">%s</ns1:g></string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
+    <string name="account">Account</string>
+    <string name="add_first_transaction">Tap + to add your first transaction</string>
+    <string name="add_person">+ Add Person</string>
+    <string name="add_receipt">Add Receipt Photo</string>
+    <string name="additional_details">Additional Details</string>
+    <string name="amount">Amount</string>
+    <string name="amount_range">Amount Range</string>
     <string name="androidx_startup" translatable="false">androidx.startup</string>
+    <string name="apply">Apply</string>
     <string name="autofill">Autofill</string>
     <string name="call_notification_answer_action">Answer</string>
     <string name="call_notification_answer_video_action">Video</string>
@@ -360,13 +369,23 @@
     <string name="call_notification_incoming_text">Incoming call</string>
     <string name="call_notification_ongoing_text">Ongoing call</string>
     <string name="call_notification_screening_text">Screening an incoming call</string>
+    <string name="cancel">Cancel</string>
+    <string name="category">Category</string>
+    <string name="clear">Clear</string>
+    <string name="clear_selection">Clear Selection</string>
     <string name="close_drawer">"Close navigation menu"</string>
     <string name="close_sheet">"Close sheet"</string>
     <string name="confirm_device_credential_password">Use password</string>
+    <string name="date">Date</string>
     <string name="default_error_message">"Invalid input"</string>
     <string name="default_error_msg">Unknown error</string>
     <string name="default_popup_window_title" ns2:ignore="ExtraTranslation">"Pop-Up Window"</string>
+    <string name="delete">Delete</string>
+    <string name="description">Description</string>
     <string name="dropdown_menu">"Dropdown menu"</string>
+    <string name="edit_transaction">Edit Transaction</string>
+    <string name="expense">Expense</string>
+    <string name="filter_transactions">Filter Transactions</string>
     <string name="fingerprint_dialog_touch_sensor">Touch the fingerprint sensor</string>
     <string name="fingerprint_error_hw_not_available">Fingerprint hardware not available.</string>
     <string name="fingerprint_error_hw_not_present">This device does not have a fingerprint sensor</string>
@@ -377,7 +396,10 @@
     <string name="generic_error_no_device_credential">No PIN, pattern, or password set.</string>
     <string name="generic_error_no_keyguard">This device does not support PIN, pattern, or password.</string>
     <string name="generic_error_user_canceled">Authentication canceled by user.</string>
+    <string name="import_button">Import %1$d Transactions</string>
+    <string name="import_sms">Import from SMS</string>
     <string name="in_progress">In progress</string>
+    <string name="income">Income</string>
     <string name="indeterminate">Partially checked</string>
     <string name="m3c_bottom_sheet_collapse_description">Collapse bottom sheet</string>
     <string name="m3c_bottom_sheet_dismiss_description">Dismiss bottom sheet</string>
@@ -422,6 +444,7 @@
     <string name="m3c_dialog">"Dialog"</string>
     <string name="m3c_dropdown_menu_collapsed">Collapsed</string>
     <string name="m3c_dropdown_menu_expanded">Expanded</string>
+    <string name="m3c_dropdown_menu_toggle">Toggle dropdown menu</string>
     <string name="m3c_search_bar_search">Search</string>
     <string name="m3c_snackbar_dismiss">Dismiss</string>
     <string name="m3c_suggestions_available">Suggestions below</string>
@@ -439,13 +462,32 @@
     <string name="m3c_time_picker_pm">PM</string>
     <string name="m3c_tooltip_long_press_label">Show tooltip</string>
     <string name="m3c_tooltip_pane_description">Tooltip</string>
+    <string name="max_hint">Max</string>
+    <string name="min_hint">Min</string>
     <string name="navigation_menu">"Navigation menu"</string>
+    <string name="new_transaction">New Transaction</string>
+    <string name="no_results">No results found</string>
+    <string name="no_sms_found">No parsable bank transactions found in recent SMS.</string>
+    <string name="no_transactions">No transactions yet</string>
     <string name="not_selected">Not selected</string>
+    <string name="note">Note</string>
+    <string name="pick_from_contacts">Pick from Contacts</string>
+    <string name="possible_duplicate">Possible Duplicate</string>
     <string name="range_end">"Range end"</string>
     <string name="range_start">"Range start"</string>
+    <string name="receipt_attachment">Receipt Attachment</string>
+    <string name="results_count">%1$d results</string>
+    <string name="save">Save</string>
+    <string name="save_transaction">Save Transaction</string>
+    <string name="search_hint">Search transactions...</string>
     <string name="search_menu_title">Search</string>
     <string name="selected">Selected</string>
+    <string name="selected_count">%1$d Selected</string>
+    <string name="smart_add_hint">Smart Add (Optional)</string>
+    <string name="smart_add_placeholder">Type: spent 500 on food</string>
     <string name="snackbar_pane_title">Alert</string>
+    <string name="split_expense">Split this expense?</string>
+    <string name="split_with">Split with:</string>
     <string name="state_empty">Empty</string>
     <string name="state_off">Off</string>
     <string name="state_on">On</string>
@@ -455,6 +497,10 @@
     <string name="template_percent"><ns1:g id="percentage">%1$d</ns1:g> percent.</string>
     <string name="tooltip_description">tooltip</string>
     <string name="tooltip_label">show tooltip</string>
+    <string name="transaction_type">Transaction Type</string>
+    <string name="transfer">Transfer</string>
+    <string name="update">Update</string>
+    <string name="update_transaction">Update Transaction</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>
@@ -1526,6 +1572,19 @@
     </style>
     <style name="DialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
+    </style>
+    <style name="EdgeToEdgeFloatingDialogTheme" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowLayoutInDisplayCutoutMode" ns2:targetApi="27">@integer/m3c_window_layout_in_display_cutout_mode</item>
+        <item name="android:windowClipToOutline">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowElevation">0dp</item>
+    </style>
+    <style name="EdgeToEdgeFloatingDialogWindowTheme">
+        <item name="android:dialogTheme">@style/EdgeToEdgeFloatingDialogTheme</item>
     </style>
     <style name="FloatingDialogTheme">
         <item name="android:windowIsFloating">false</item>

@@ -4,7 +4,7 @@
             "outputFile": "com.zincstate.manifest.feature.subscriptions-release-69:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-night-v8/values-night-v8.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/fff226417672af1a338b278375d311a9/transformed/appcompat-1.2.0/res/values-night-v8/values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -19,7 +19,7 @@
             "outputFile": "com.zincstate.manifest.feature.subscriptions-mergeReleaseResources-67:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-night-v8/values-night-v8.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/fff226417672af1a338b278375d311a9/transformed/appcompat-1.2.0/res/values-night-v8/values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

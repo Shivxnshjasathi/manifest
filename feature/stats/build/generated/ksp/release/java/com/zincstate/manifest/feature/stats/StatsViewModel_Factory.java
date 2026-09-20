@@ -1,5 +1,6 @@
 package com.zincstate.manifest.feature.stats;
 
+import com.zincstate.manifest.core.database.dao.CategoryDao;
 import com.zincstate.manifest.core.database.dao.TransactionDao;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -25,20 +26,25 @@ import javax.inject.Provider;
 public final class StatsViewModel_Factory implements Factory<StatsViewModel> {
   private final Provider<TransactionDao> transactionDaoProvider;
 
-  public StatsViewModel_Factory(Provider<TransactionDao> transactionDaoProvider) {
+  private final Provider<CategoryDao> categoryDaoProvider;
+
+  public StatsViewModel_Factory(Provider<TransactionDao> transactionDaoProvider,
+      Provider<CategoryDao> categoryDaoProvider) {
     this.transactionDaoProvider = transactionDaoProvider;
+    this.categoryDaoProvider = categoryDaoProvider;
   }
 
   @Override
   public StatsViewModel get() {
-    return newInstance(transactionDaoProvider.get());
+    return newInstance(transactionDaoProvider.get(), categoryDaoProvider.get());
   }
 
-  public static StatsViewModel_Factory create(Provider<TransactionDao> transactionDaoProvider) {
-    return new StatsViewModel_Factory(transactionDaoProvider);
+  public static StatsViewModel_Factory create(Provider<TransactionDao> transactionDaoProvider,
+      Provider<CategoryDao> categoryDaoProvider) {
+    return new StatsViewModel_Factory(transactionDaoProvider, categoryDaoProvider);
   }
 
-  public static StatsViewModel newInstance(TransactionDao transactionDao) {
-    return new StatsViewModel(transactionDao);
+  public static StatsViewModel newInstance(TransactionDao transactionDao, CategoryDao categoryDao) {
+    return new StatsViewModel(transactionDao, categoryDao);
   }
 }

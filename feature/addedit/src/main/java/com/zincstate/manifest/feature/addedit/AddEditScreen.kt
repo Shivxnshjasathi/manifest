@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -38,6 +39,8 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -53,6 +56,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -85,6 +89,15 @@ import com.zincstate.manifest.core.model.TransactionType
 import com.zincstate.manifest.core.ui.components.DetailTopBar
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+
+import androidx.compose.ui.res.stringResource
+import com.zincstate.manifest.core.ui.R
+
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditScreen(
@@ -94,6 +107,12 @@ fun AddEditScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
     var showDatePicker by remember { mutableStateOf(false) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { viewModel.setAttachmentUri(it) }
+    }
 
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
@@ -116,12 +135,12 @@ fun AddEditScreen(
                     }
                     showDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -181,7 +200,7 @@ fun AddEditScreen(
             .navigationBarsPadding()
     ) {
         DetailTopBar(
-            title = if (state.isEditMode) "Edit Transaction" else "New Transaction",
+            title = if (state.isEditMode) stringResource(R.string.edit_transaction) else stringResource(R.string.new_transaction),
             onBackClick = onBackClick
         )
 
@@ -230,67 +249,70 @@ fun AddEditScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Smart Add
-            Text(
-                "Smart Add (Optional)",
-                style = MaterialTheme.typography.labelLarge,
-                color = ManifestThemeTokens.colors.textSecondary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-                border = BorderStroke(1.dp, ManifestThemeTokens.colors.border.copy(alpha = 0.5f)),
-                elevation = CardDefaults.cardElevation(0.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = state.smartAddInput,
-                        onValueChange = { viewModel.processSmartAdd(it) },
-                        modifier = Modifier.weight(1f),
-                        placeholder = {
-                            Text(
-                                "Type: spent 500 on food",
-                                color = ManifestThemeTokens.colors.textTertiary,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent
-                        ),
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge
+            AnimatedVisibility(visible = state.type == TransactionType.EXPENSE) {
+                Column {
+                    Text(
+                        stringResource(R.string.smart_add_hint),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = ManifestThemeTokens.colors.textSecondary,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    IconButton(onClick = {
-                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            putExtra(RecognizerIntent.EXTRA_PROMPT, "Describe your transaction (e.g., spent 500 on food from SBI)")
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        border = BorderStroke(1.dp, ManifestThemeTokens.colors.border.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(0.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = state.smartAddInput,
+                                onValueChange = { viewModel.processSmartAdd(it) },
+                                modifier = Modifier.weight(1f),
+                                placeholder = {
+                                    Text(
+                                        stringResource(R.string.smart_add_placeholder),
+                                        color = ManifestThemeTokens.colors.textTertiary,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent
+                                ),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodyLarge
+                            )
+                            IconButton(onClick = {
+                                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Describe your transaction (e.g., spent 500 on food from SBI)")
+                                }
+                                try {
+                                    speechLauncher.launch(intent)
+                                } catch (_: Exception) {
+                                    // Handle case where speech recognition is not available
+                                }
+                            }) {
+                                Icon(
+                                    Icons.Default.Mic,
+                                    contentDescription = "Voice input",
+                                    tint = ManifestThemeTokens.colors.textSecondary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         }
-                        try {
-                            speechLauncher.launch(intent)
-                        } catch (_: Exception) {
-                            // Handle case where speech recognition is not available
-                        }
-                    }) {
-                        Icon(
-                            Icons.Default.Mic,
-                            contentDescription = "Voice input",
-                            tint = ManifestThemeTokens.colors.textSecondary,
-                            modifier = Modifier.size(24.dp)
-                        )
                     }
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             // Amount (Modern Look)
             Box(
@@ -303,7 +325,7 @@ fun AddEditScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "Amount",
+                        stringResource(R.string.amount),
                         style = MaterialTheme.typography.labelMedium,
                         color = ManifestThemeTokens.colors.textTertiary
                     )
@@ -364,7 +386,7 @@ fun AddEditScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Date",
+                            stringResource(R.string.date),
                             style = MaterialTheme.typography.labelMedium,
                             color = ManifestThemeTokens.colors.textTertiary
                         )
@@ -385,63 +407,66 @@ fun AddEditScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Category selector
-            Text(
-                "Category",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth().animateContentSize()
-            ) {
-                val filteredCategories = state.categories.filter { cat ->
-                    when (state.type) {
-                        TransactionType.INCOME -> cat.type == "INCOME"
-                        TransactionType.EXPENSE -> cat.type == "EXPENSE"
-                        TransactionType.TRANSFER -> true
-                    }
-                }
-                filteredCategories.forEach { category ->
-                    val isSelected = state.selectedCategoryId == category.id
-                    val scale by androidx.compose.animation.core.animateFloatAsState(
-                        targetValue = if (isSelected) 1.05f else 1f,
-                        label = "chipScale"
+            AnimatedVisibility(visible = state.type != TransactionType.TRANSFER) {
+                Column {
+                    Text(
+                        stringResource(R.string.category),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    Row(
-                        modifier = Modifier
-                            .scale(scale)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
-                            .clickable { viewModel.setCategory(category.id) }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth().animateContentSize()
                     ) {
-                        Text(
-                            category.icon,
-                            modifier = Modifier.padding(end = 6.dp)
-                        )
-                        Text(
-                            category.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurface
-                        )
+                        val filteredCategories = state.categories.filter { cat ->
+                            when (state.type) {
+                                TransactionType.INCOME -> cat.type == "INCOME"
+                                TransactionType.EXPENSE -> cat.type == "EXPENSE"
+                                TransactionType.TRANSFER -> true
+                            }
+                        }
+                        filteredCategories.forEach { category ->
+                            val isSelected = state.selectedCategoryId == category.id
+                            val scale by androidx.compose.animation.core.animateFloatAsState(
+                                targetValue = if (isSelected) 1.05f else 1f,
+                                label = "chipScale"
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .scale(scale)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                    .clickable { viewModel.setCategory(category.id) }
+                                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    category.icon,
+                                    modifier = Modifier.padding(end = 6.dp)
+                                )
+                                Text(
+                                    category.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
             // Account selector
             Text(
-                "Account",
+                stringResource(R.string.account),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -541,33 +566,35 @@ fun AddEditScreen(
             }
             
             // Split Expense Toggle (Smart Feature)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (state.isSplitEnabled) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent)
-                    .clickable { viewModel.toggleSplit(!state.isSplitEnabled) }
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Switch(
-                    checked = state.isSplitEnabled,
-                    onCheckedChange = { viewModel.toggleSplit(it) },
-                    modifier = Modifier.scale(0.8f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Split this expense?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (state.isSplitEnabled) MaterialTheme.colorScheme.primary else ManifestThemeTokens.colors.textSecondary
-                )
+            AnimatedVisibility(visible = state.type == TransactionType.EXPENSE) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (state.isSplitEnabled) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent)
+                        .clickable { viewModel.toggleSplit(!state.isSplitEnabled) }
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(
+                        checked = state.isSplitEnabled,
+                        onCheckedChange = { viewModel.toggleSplit(it) },
+                        modifier = Modifier.scale(0.8f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        stringResource(R.string.split_expense),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (state.isSplitEnabled) MaterialTheme.colorScheme.primary else ManifestThemeTokens.colors.textSecondary
+                    )
+                }
             }
             
             AnimatedVisibility(visible = state.isSplitEnabled) {
                 Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
                     Text(
-                        "Split with:",
+                        stringResource(R.string.split_with),
                         style = MaterialTheme.typography.labelLarge,
                         color = ManifestThemeTokens.colors.textSecondary,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -602,7 +629,7 @@ fun AddEditScreen(
                                     contactPermissionLauncher.launch(android.Manifest.permission.READ_CONTACTS)
                                 }
                             },
-                            label = { Text("Pick from Contacts") },
+                            label = { Text(stringResource(R.string.pick_from_contacts)) },
                             leadingIcon = { Icon(Icons.Default.PersonAdd, null, modifier = Modifier.size(16.dp)) },
                             colors = FilterChipDefaults.filterChipColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
@@ -614,7 +641,7 @@ fun AddEditScreen(
                         FilterChip(
                             selected = false,
                             onClick = { showAddContactDialog = true },
-                            label = { Text("+ Add Person") },
+                            label = { Text(stringResource(R.string.add_person)) },
                             colors = FilterChipDefaults.filterChipColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                             ),
@@ -687,6 +714,64 @@ fun AddEditScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Receipt Attachment
+            Text(
+                stringResource(R.string.receipt_attachment),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            if (state.attachmentUri != null || state.attachmentPath != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                ) {
+                    AsyncImage(
+                        model = state.attachmentUri ?: state.attachmentPath,
+                        contentDescription = "Receipt",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    IconButton(
+                        onClick = { viewModel.removeAttachment() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                            .size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Remove",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+                ) {
+                    Icon(Icons.Default.Image, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.add_receipt))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // More Details toggle
             Row(
                 modifier = Modifier
@@ -698,7 +783,7 @@ fun AddEditScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Additional Details",
+                    stringResource(R.string.additional_details),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = ManifestThemeTokens.colors.textSecondary
@@ -742,7 +827,7 @@ fun AddEditScreen(
         val isPressed by interactionSource.collectIsPressedAsState()
 
         Button(
-            onClick = { viewModel.save() },
+            onClick = { viewModel.save(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 20.dp)
@@ -757,7 +842,7 @@ fun AddEditScreen(
             enabled = !state.isSaving && state.isValid
         ) {
             Text(
-                if (state.isEditMode) "Update Transaction" else "Save Transaction",
+                if (state.isEditMode) stringResource(R.string.update_transaction) else stringResource(R.string.save_transaction),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

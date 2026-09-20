@@ -2,6 +2,7 @@ package com.zincstate.manifest.feature.transactions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.zincstate.manifest.core.common.CurrencyFormatter
 import com.zincstate.manifest.core.common.DateUtils
 import com.zincstate.manifest.core.ui.components.DateHeader
@@ -55,10 +58,25 @@ fun TransactionsCalendar(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Month Summary Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            MonthSummaryItem(label = "Income", amount = state.totalIncome, color = ManifestThemeTokens.colors.income)
+            MonthSummaryItem(label = "Expense", amount = state.totalExpense, color = ManifestThemeTokens.colors.expense)
+            MonthSummaryItem(label = "Net", amount = state.total, color = MaterialTheme.colorScheme.onSurface)
+        }
+
         CalendarGrid(
             currentMonthStr = state.currentMonth,
-            transactionDates = state.transactionDatesInMonth,
-            dailyTotalsRaw = state.dailyTotalsRaw,
+            dailyIncomeRaw = state.dailyIncomeRaw,
+            dailyExpenseRaw = state.dailyExpenseRaw,
             selectedDate = state.selectedCalendarDate,
             onDateSelect = onDateSelect
         )
@@ -100,7 +118,7 @@ fun TransactionsCalendar(
                     
                     item {
                         DateHeader(
-                            dateText = formattedDate,
+                            dateText = formattedDate ?: "",
                             totalText = state.dailyTotals[state.selectedCalendarDate] ?: "",
                             isAmountVisible = state.isAmountVisible
                         )
@@ -127,8 +145,8 @@ fun TransactionsCalendar(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 16.dp, vertical = 2.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        .clip(RoundedCornerShape(16.dp))
                                         .background(color),
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
@@ -153,6 +171,7 @@ fun TransactionsCalendar(
                                 isIncome = item.isIncome,
                                 isAmountVisible = state.isAmountVisible,
                                 isSelected = state.selectedTransactionIds.contains(item.id),
+                                hasAttachment = item.hasAttachment,
                                 onClick = { onTransactionClick(item.id) },
                                 onLongClick = { onTransactionLongClick(item.id) }
                             )
@@ -176,10 +195,18 @@ fun TransactionsCalendar(
 }
 
 @Composable
+private fun MonthSummaryItem(label: String, amount: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = ManifestThemeTokens.colors.textTertiary)
+        Text(text = amount, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = color)
+    }
+}
+
+@Composable
 private fun CalendarGrid(
     currentMonthStr: String,
-    transactionDates: Set<Int>,
-    dailyTotalsRaw: Map<String, Double>,
+    dailyIncomeRaw: Map<String, Double>,
+    dailyExpenseRaw: Map<String, Double>,
     selectedDate: String?,
     onDateSelect: (String?) -> Unit
 ) {
@@ -230,15 +257,15 @@ private fun CalendarGrid(
                         val currentDay = dayCounter
                         val dateString = String.format("%04d-%02d-%02d", yearMonth.year, yearMonth.monthValue, currentDay)
                         val isSelected = dateString == selectedDate
-                        val hasTransactions = transactionDates.contains(currentDay)
-                        val dailyTotal = dailyTotalsRaw[dateString]
+                        val income = dailyIncomeRaw[dateString] ?: 0.0
+                        val expense = dailyExpenseRaw[dateString] ?: 0.0
                         
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
                                 .padding(2.dp)
-                                .clip(CircleShape)
+                                .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     if (isSelected) MaterialTheme.colorScheme.primary
                                     else Color.Transparent
@@ -253,23 +280,26 @@ private fun CalendarGrid(
                                     text = currentDay.toString(),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                                    else MaterialTheme.colorScheme.onBackground
+                                    else MaterialTheme.colorScheme.onBackground,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                 )
-                                if (dailyTotal != null) {
-                                    Text(
-                                        text = CurrencyFormatter.formatCompact(dailyTotal),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                                        else ManifestThemeTokens.colors.textTertiary,
-                                        maxLines = 1
-                                    )
-                                } else if (hasTransactions && !isSelected) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(4.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                    )
+                                if (!isSelected) {
+                                    if (income > 0) {
+                                        Text(
+                                            text = CurrencyFormatter.formatCompact(income),
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
+                                            color = ManifestThemeTokens.colors.income,
+                                            maxLines = 1
+                                        )
+                                    }
+                                    if (expense > 0) {
+                                        Text(
+                                            text = "-${CurrencyFormatter.formatCompact(expense)}",
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
+                                            color = ManifestThemeTokens.colors.expense,
+                                            maxLines = 1
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -18,7 +18,7 @@ data class TransactionEntity(
     val type: String, // INCOME, EXPENSE, TRANSFER
     val amount: Double,
     val date: String, // ISO 8601
-    val categoryId: String,
+    val categoryId: String?,
     val accountId: String,
     val toAccountId: String? = null,
     val note: String = "",

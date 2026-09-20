@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,6 +56,7 @@ fun TransactionItem(
     isIncome: Boolean,
     isAmountVisible: Boolean,
     isSelected: Boolean = false,
+    hasAttachment: Boolean = false,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -143,16 +145,26 @@ fun TransactionItem(
         }
 
         // Amount
-        Text(
-            text = if (isAmountVisible) amount else "••••",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = if (isIncome) {
-                ManifestThemeTokens.colors.income
-            } else {
-                ManifestThemeTokens.colors.expense
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = if (isAmountVisible) amount else "••••",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isIncome) {
+                    ManifestThemeTokens.colors.income
+                } else {
+                    ManifestThemeTokens.colors.expense
+                }
+            )
+            if (hasAttachment) {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = null,
+                    tint = ManifestThemeTokens.colors.textTertiary,
+                    modifier = Modifier.size(14.dp)
+                )
             }
-        )
+        }
     }
 }
 

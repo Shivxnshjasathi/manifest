@@ -1,6 +1,6 @@
 [
     {
         "merged": "com.zincstate.manifest.feature.goals-release-69:/drawable-anydpi-v23/fingerprint_dialog_fp_icon.xml",
-        "source": "com.zincstate.manifest.feature.goals-biometric-1.1.0-6:/drawable-anydpi-v23/fingerprint_dialog_fp_icon.xml"
+        "source": "com.zincstate.manifest.feature.goals-biometric-1.1.0-28:/drawable-anydpi-v23/fingerprint_dialog_fp_icon.xml"
     }
 ]

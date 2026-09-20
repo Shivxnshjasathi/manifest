@@ -1,18 +1,18 @@
 [
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/font/poppins_regular.ttf",
-        "source": "com.zincstate.manifest.core.ui-main-42:/font/poppins_regular.ttf"
+        "merged": "com.zincstate.manifest.core.ui-release-43:/font/poppins_regular.ttf",
+        "source": "com.zincstate.manifest.core.ui-main-44:/font/poppins_regular.ttf"
     },
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/font/poppins_bold.ttf",
-        "source": "com.zincstate.manifest.core.ui-main-42:/font/poppins_bold.ttf"
+        "merged": "com.zincstate.manifest.core.ui-release-43:/font/poppins_medium.ttf",
+        "source": "com.zincstate.manifest.core.ui-main-44:/font/poppins_medium.ttf"
     },
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/font/poppins_medium.ttf",
-        "source": "com.zincstate.manifest.core.ui-main-42:/font/poppins_medium.ttf"
+        "merged": "com.zincstate.manifest.core.ui-release-43:/font/poppins_bold.ttf",
+        "source": "com.zincstate.manifest.core.ui-main-44:/font/poppins_bold.ttf"
     },
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/font/poppins_semibold.ttf",
-        "source": "com.zincstate.manifest.core.ui-main-42:/font/poppins_semibold.ttf"
+        "merged": "com.zincstate.manifest.core.ui-release-43:/font/poppins_semibold.ttf",
+        "source": "com.zincstate.manifest.core.ui-main-44:/font/poppins_semibold.ttf"
     }
 ]

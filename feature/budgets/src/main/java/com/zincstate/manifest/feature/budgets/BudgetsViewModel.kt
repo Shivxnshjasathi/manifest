@@ -109,4 +109,17 @@ class BudgetsViewModel @Inject constructor(
             budgetDao.deleteById(id)
         }
     }
+
+    fun copyPreviousMonthBudgets() {
+        viewModelScope.launch {
+            val prevMonth = _currentMonth.value.minusMonths(1).format(formatter)
+            val currentMonth = _currentMonth.value.format(formatter)
+            val prevBudgets = budgetDao.getBudgetsByMonth(prevMonth).first()
+            
+            val newBudgets = prevBudgets.map { 
+                it.copy(id = UUID.randomUUID().toString(), yearMonth = currentMonth) 
+            }
+            budgetDao.insertAll(newBudgets)
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.zincstate.manifest.feature.budgets;
 
 import com.zincstate.manifest.core.database.dao.BudgetDao;
 import com.zincstate.manifest.core.database.dao.TransactionDao;
+import com.zincstate.manifest.core.database.dao.TransactionSplitDao;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -28,23 +29,29 @@ public final class BudgetsViewModel_Factory implements Factory<BudgetsViewModel>
 
   private final Provider<TransactionDao> transactionDaoProvider;
 
+  private final Provider<TransactionSplitDao> splitDaoProvider;
+
   public BudgetsViewModel_Factory(Provider<BudgetDao> budgetDaoProvider,
-      Provider<TransactionDao> transactionDaoProvider) {
+      Provider<TransactionDao> transactionDaoProvider,
+      Provider<TransactionSplitDao> splitDaoProvider) {
     this.budgetDaoProvider = budgetDaoProvider;
     this.transactionDaoProvider = transactionDaoProvider;
+    this.splitDaoProvider = splitDaoProvider;
   }
 
   @Override
   public BudgetsViewModel get() {
-    return newInstance(budgetDaoProvider.get(), transactionDaoProvider.get());
+    return newInstance(budgetDaoProvider.get(), transactionDaoProvider.get(), splitDaoProvider.get());
   }
 
   public static BudgetsViewModel_Factory create(Provider<BudgetDao> budgetDaoProvider,
-      Provider<TransactionDao> transactionDaoProvider) {
-    return new BudgetsViewModel_Factory(budgetDaoProvider, transactionDaoProvider);
+      Provider<TransactionDao> transactionDaoProvider,
+      Provider<TransactionSplitDao> splitDaoProvider) {
+    return new BudgetsViewModel_Factory(budgetDaoProvider, transactionDaoProvider, splitDaoProvider);
   }
 
-  public static BudgetsViewModel newInstance(BudgetDao budgetDao, TransactionDao transactionDao) {
-    return new BudgetsViewModel(budgetDao, transactionDao);
+  public static BudgetsViewModel newInstance(BudgetDao budgetDao, TransactionDao transactionDao,
+      TransactionSplitDao splitDao) {
+    return new BudgetsViewModel(budgetDao, transactionDao, splitDao);
   }
 }

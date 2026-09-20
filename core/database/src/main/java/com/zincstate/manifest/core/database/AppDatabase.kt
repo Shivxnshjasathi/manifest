@@ -40,7 +40,7 @@ import java.util.UUID
         ContactEntity::class,
         TransactionSplitEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {

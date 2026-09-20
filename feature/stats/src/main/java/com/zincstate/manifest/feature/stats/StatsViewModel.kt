@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zincstate.manifest.core.common.CurrencyFormatter
 import com.zincstate.manifest.core.database.dao.CategoryDao
-import com.zincstate.manifest.core.database.dao.DailyTotal
+import com.zincstate.manifest.core.database.dao.CategoryTotal
+import com.zincstate.manifest.core.database.dao.MonthlyTotal
 import com.zincstate.manifest.core.database.dao.TransactionDao
 import com.zincstate.manifest.core.database.entity.CategoryEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,7 @@ data class StatsUiState(
     val selectedType: String = "EXPENSE", // "EXPENSE" or "INCOME"
     val totalAmount: String = "₹0",
     val categoryBreakdown: List<CategoryStatsUiItem> = emptyList(),
-    val last30DaysExpenses: List<DailyTotal> = emptyList(),
+    val monthlyComparison: List<com.zincstate.manifest.core.database.dao.MonthlyTotal> = emptyList(),
     val totalIncomeForMonth: String = "₹0",
     val totalExpenseForMonth: String = "₹0",
     val isLoading: Boolean = true
@@ -55,7 +56,7 @@ class StatsViewModel @Inject constructor(
         _currentMonth.flatMapLatest { date -> transactionDao.getCategoryBreakdown(date.format(formatter), "EXPENSE") },
         _currentMonth.flatMapLatest { date -> transactionDao.getCategoryBreakdown(date.format(formatter), "INCOME") },
         categoryDao.getAllCategories(),
-        transactionDao.getDailyExpensesSince(LocalDate.now().minusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE))
+        transactionDao.getMonthlyTotalsSince(LocalDate.now().minusMonths(6).withDayOfMonth(1).format(DateTimeFormatter.ISO_LOCAL_DATE))
     ) { args ->
         val currentMonth = args[0] as LocalDate
         val selectedType = args[1] as String
@@ -66,7 +67,7 @@ class StatsViewModel @Inject constructor(
         @Suppress("UNCHECKED_CAST")
         val categories = args[4] as List<CategoryEntity>
         @Suppress("UNCHECKED_CAST")
-        val last30Days = args[5] as List<DailyTotal>
+        val monthlyTotals = args[5] as List<com.zincstate.manifest.core.database.dao.MonthlyTotal>
         
         val categoryMap = categories.associateBy { it.id }
         
@@ -93,7 +94,7 @@ class StatsViewModel @Inject constructor(
             selectedType = selectedType,
             totalAmount = CurrencyFormatter.format(totalAmount),
             categoryBreakdown = categoryUiItems,
-            last30DaysExpenses = last30Days,
+            monthlyComparison = monthlyTotals,
             totalIncomeForMonth = CurrencyFormatter.format(totalIncome),
             totalExpenseForMonth = CurrencyFormatter.format(totalExpense),
             isLoading = false

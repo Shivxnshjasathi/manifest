@@ -29,9 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,6 +40,9 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+import androidx.compose.ui.res.stringResource
+import com.zincstate.manifest.core.ui.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmsImportScreen(
@@ -50,6 +51,7 @@ fun SmsImportScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showRationale by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -69,14 +71,35 @@ fun SmsImportScreen(
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
             viewModel.scanSms(context)
         } else {
-            permissionLauncher.launch(Manifest.permission.READ_SMS)
+            showRationale = true
         }
+    }
+
+    if (showRationale) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showRationale = false },
+            title = { Text(stringResource(R.string.import_sms)) },
+            text = { Text("Manifest needs permission to read your SMS to automatically find and import bank transactions. Your data stays on your device.") },
+            confirmButton = {
+                Button(onClick = {
+                    showRationale = false
+                    permissionLauncher.launch(Manifest.permission.READ_SMS)
+                }) {
+                    Text("Allow")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showRationale = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Import from SMS") },
+                title = { Text(stringResource(R.string.import_sms)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -96,7 +119,7 @@ fun SmsImportScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = selectedCount > 0 && !state.isLoading
                     ) {
-                        Text("Import $selectedCount Transactions")
+                        Text(stringResource(R.string.import_button, selectedCount))
                     }
                 }
             }
@@ -112,7 +135,7 @@ fun SmsImportScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.parsedMessages.isEmpty()) {
                 Text(
-                    text = "No parsable bank transactions found in recent SMS.",
+                    text = stringResource(R.string.no_sms_found),
                     modifier = Modifier.align(Alignment.Center).padding(32.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -150,7 +173,7 @@ fun SmsItemRow(
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "${if (item.isExpense) "Expense" else "Income"} - ₹${item.amount}",
+                text = "${if (item.isExpense) stringResource(R.string.expense) else stringResource(R.string.income)} - ₹${item.amount}",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = if (item.isExpense) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
@@ -162,7 +185,7 @@ fun SmsItemRow(
             )
             if (item.isDuplicate) {
                 Text(
-                    text = "Possible Duplicate",
+                    text = stringResource(R.string.possible_duplicate),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error,

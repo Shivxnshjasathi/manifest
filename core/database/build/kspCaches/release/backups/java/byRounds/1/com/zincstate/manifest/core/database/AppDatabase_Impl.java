@@ -17,6 +17,8 @@ import com.zincstate.manifest.core.database.dao.BudgetDao;
 import com.zincstate.manifest.core.database.dao.BudgetDao_Impl;
 import com.zincstate.manifest.core.database.dao.CategoryDao;
 import com.zincstate.manifest.core.database.dao.CategoryDao_Impl;
+import com.zincstate.manifest.core.database.dao.ContactDao;
+import com.zincstate.manifest.core.database.dao.ContactDao_Impl;
 import com.zincstate.manifest.core.database.dao.GoalDao;
 import com.zincstate.manifest.core.database.dao.GoalDao_Impl;
 import com.zincstate.manifest.core.database.dao.MonthlySummaryDao;
@@ -25,6 +27,8 @@ import com.zincstate.manifest.core.database.dao.RecurringTransactionDao;
 import com.zincstate.manifest.core.database.dao.RecurringTransactionDao_Impl;
 import com.zincstate.manifest.core.database.dao.TransactionDao;
 import com.zincstate.manifest.core.database.dao.TransactionDao_Impl;
+import com.zincstate.manifest.core.database.dao.TransactionSplitDao;
+import com.zincstate.manifest.core.database.dao.TransactionSplitDao_Impl;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -55,10 +59,14 @@ public final class AppDatabase_Impl extends AppDatabase {
 
   private volatile MonthlySummaryDao _monthlySummaryDao;
 
+  private volatile ContactDao _contactDao;
+
+  private volatile TransactionSplitDao _transactionSplitDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `categoryId` TEXT NOT NULL, `accountId` TEXT NOT NULL, `toAccountId` TEXT, `note` TEXT NOT NULL, `description` TEXT NOT NULL, `attachmentPath` TEXT, `superCategory` TEXT, `isSettled` INTEGER NOT NULL, `recurringId` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))");
@@ -72,8 +80,12 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `goals` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `targetAmount` REAL NOT NULL, `currentAmount` REAL NOT NULL, `deadline` TEXT, `color` TEXT NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `recurring_transactions` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `amount` REAL NOT NULL, `categoryId` TEXT NOT NULL, `accountId` TEXT NOT NULL, `toAccountId` TEXT, `note` TEXT NOT NULL, `description` TEXT NOT NULL, `superCategory` TEXT, `frequency` TEXT NOT NULL, `startDate` TEXT NOT NULL, `nextRunDate` TEXT NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `monthly_summaries` (`yearMonth` TEXT NOT NULL, `totalIncome` REAL NOT NULL, `totalExpense` REAL NOT NULL, `byCategory` TEXT NOT NULL, PRIMARY KEY(`yearMonth`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `contacts` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT, `phone` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `transaction_splits` (`id` TEXT NOT NULL, `transactionId` TEXT NOT NULL, `contactId` TEXT NOT NULL, `amount` REAL NOT NULL, `isSettled` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`transactionId`) REFERENCES `transactions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`contactId`) REFERENCES `contacts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_splits_transactionId` ON `transaction_splits` (`transactionId`)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_transaction_splits_contactId` ON `transaction_splits` (`contactId`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'efd6446b87b3f1af5d0d163bf2c083f7')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3224e0e74daf9965b44574aa0f45208d')");
       }
 
       @Override
@@ -85,6 +97,8 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `goals`");
         db.execSQL("DROP TABLE IF EXISTS `recurring_transactions`");
         db.execSQL("DROP TABLE IF EXISTS `monthly_summaries`");
+        db.execSQL("DROP TABLE IF EXISTS `contacts`");
+        db.execSQL("DROP TABLE IF EXISTS `transaction_splits`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -106,6 +120,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @Override
       public void onOpen(@NonNull final SupportSQLiteDatabase db) {
         mDatabase = db;
+        db.execSQL("PRAGMA foreign_keys = ON");
         internalInitInvalidationTracker(db);
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
@@ -253,9 +268,44 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoMonthlySummaries + "\n"
                   + " Found:\n" + _existingMonthlySummaries);
         }
+        final HashMap<String, TableInfo.Column> _columnsContacts = new HashMap<String, TableInfo.Column>(5);
+        _columnsContacts.put("id", new TableInfo.Column("id", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsContacts.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsContacts.put("email", new TableInfo.Column("email", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsContacts.put("phone", new TableInfo.Column("phone", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsContacts.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysContacts = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesContacts = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoContacts = new TableInfo("contacts", _columnsContacts, _foreignKeysContacts, _indicesContacts);
+        final TableInfo _existingContacts = TableInfo.read(db, "contacts");
+        if (!_infoContacts.equals(_existingContacts)) {
+          return new RoomOpenHelper.ValidationResult(false, "contacts(com.zincstate.manifest.core.database.entity.ContactEntity).\n"
+                  + " Expected:\n" + _infoContacts + "\n"
+                  + " Found:\n" + _existingContacts);
+        }
+        final HashMap<String, TableInfo.Column> _columnsTransactionSplits = new HashMap<String, TableInfo.Column>(6);
+        _columnsTransactionSplits.put("id", new TableInfo.Column("id", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactionSplits.put("transactionId", new TableInfo.Column("transactionId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactionSplits.put("contactId", new TableInfo.Column("contactId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactionSplits.put("amount", new TableInfo.Column("amount", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactionSplits.put("isSettled", new TableInfo.Column("isSettled", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactionSplits.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysTransactionSplits = new HashSet<TableInfo.ForeignKey>(2);
+        _foreignKeysTransactionSplits.add(new TableInfo.ForeignKey("transactions", "CASCADE", "NO ACTION", Arrays.asList("transactionId"), Arrays.asList("id")));
+        _foreignKeysTransactionSplits.add(new TableInfo.ForeignKey("contacts", "CASCADE", "NO ACTION", Arrays.asList("contactId"), Arrays.asList("id")));
+        final HashSet<TableInfo.Index> _indicesTransactionSplits = new HashSet<TableInfo.Index>(2);
+        _indicesTransactionSplits.add(new TableInfo.Index("index_transaction_splits_transactionId", false, Arrays.asList("transactionId"), Arrays.asList("ASC")));
+        _indicesTransactionSplits.add(new TableInfo.Index("index_transaction_splits_contactId", false, Arrays.asList("contactId"), Arrays.asList("ASC")));
+        final TableInfo _infoTransactionSplits = new TableInfo("transaction_splits", _columnsTransactionSplits, _foreignKeysTransactionSplits, _indicesTransactionSplits);
+        final TableInfo _existingTransactionSplits = TableInfo.read(db, "transaction_splits");
+        if (!_infoTransactionSplits.equals(_existingTransactionSplits)) {
+          return new RoomOpenHelper.ValidationResult(false, "transaction_splits(com.zincstate.manifest.core.database.entity.TransactionSplitEntity).\n"
+                  + " Expected:\n" + _infoTransactionSplits + "\n"
+                  + " Found:\n" + _existingTransactionSplits);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "efd6446b87b3f1af5d0d163bf2c083f7", "afec314a9df5cfe2bc5bf908c1d970c9");
+    }, "3224e0e74daf9965b44574aa0f45208d", "927e8c9691b057aae1340ec4ba0fe67a");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -266,15 +316,22 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","accounts","categories","budgets","goals","recurring_transactions","monthly_summaries");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","accounts","categories","budgets","goals","recurring_transactions","monthly_summaries","contacts","transaction_splits");
   }
 
   @Override
   public void clearAllTables() {
     super.assertNotMainThread();
     final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
+    final boolean _supportsDeferForeignKeys = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP;
     try {
+      if (!_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA foreign_keys = FALSE");
+      }
       super.beginTransaction();
+      if (_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA defer_foreign_keys = TRUE");
+      }
       _db.execSQL("DELETE FROM `transactions`");
       _db.execSQL("DELETE FROM `accounts`");
       _db.execSQL("DELETE FROM `categories`");
@@ -282,9 +339,14 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `goals`");
       _db.execSQL("DELETE FROM `recurring_transactions`");
       _db.execSQL("DELETE FROM `monthly_summaries`");
+      _db.execSQL("DELETE FROM `contacts`");
+      _db.execSQL("DELETE FROM `transaction_splits`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
+      if (!_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA foreign_keys = TRUE");
+      }
       _db.query("PRAGMA wal_checkpoint(FULL)").close();
       if (!_db.inTransaction()) {
         _db.execSQL("VACUUM");
@@ -303,6 +365,8 @@ public final class AppDatabase_Impl extends AppDatabase {
     _typeConvertersMap.put(GoalDao.class, GoalDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(RecurringTransactionDao.class, RecurringTransactionDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(MonthlySummaryDao.class, MonthlySummaryDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(ContactDao.class, ContactDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(TransactionSplitDao.class, TransactionSplitDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -415,6 +479,34 @@ public final class AppDatabase_Impl extends AppDatabase {
           _monthlySummaryDao = new MonthlySummaryDao_Impl(this);
         }
         return _monthlySummaryDao;
+      }
+    }
+  }
+
+  @Override
+  public ContactDao contactDao() {
+    if (_contactDao != null) {
+      return _contactDao;
+    } else {
+      synchronized(this) {
+        if(_contactDao == null) {
+          _contactDao = new ContactDao_Impl(this);
+        }
+        return _contactDao;
+      }
+    }
+  }
+
+  @Override
+  public TransactionSplitDao transactionSplitDao() {
+    if (_transactionSplitDao != null) {
+      return _transactionSplitDao;
+    } else {
+      synchronized(this) {
+        if(_transactionSplitDao == null) {
+          _transactionSplitDao = new TransactionSplitDao_Impl(this);
+        }
+        return _transactionSplitDao;
       }
     }
   }

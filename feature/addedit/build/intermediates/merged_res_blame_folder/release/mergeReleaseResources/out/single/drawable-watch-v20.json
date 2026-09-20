@@ -1,6 +1,6 @@
 [
     {
-        "merged": "com.zincstate.manifest.feature.addedit-release-70:/drawable-watch-v20/abc_dialog_material_background.xml",
-        "source": "com.zincstate.manifest.feature.addedit-appcompat-1.2.0-27:/drawable-watch-v20/abc_dialog_material_background.xml"
+        "merged": "com.zincstate.manifest.feature.addedit-release-72:/drawable-watch-v20/abc_dialog_material_background.xml",
+        "source": "com.zincstate.manifest.feature.addedit-appcompat-1.6.1-13:/drawable-watch-v20/abc_dialog_material_background.xml"
     }
 ]

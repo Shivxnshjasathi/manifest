@@ -1,29 +1,15 @@
 package com.zincstate.manifest.feature.accounts
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -38,6 +24,7 @@ import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 @Composable
 fun AccountsScreen(
     onAccountClick: (String) -> Unit = {},
+    onBackClick: () -> Unit = {},
     viewModel: AccountsViewModel = hiltViewModel()
 ) {
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
@@ -63,40 +50,43 @@ fun AccountsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 4.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
             Text(
                 "Accounts",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f)
             )
             IconButton(onClick = { showAddSheet = true }) {
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = "Add Account",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Account",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
 
         // Account list grouped by type
-        val grouped = accounts.groupBy { it.group }
+        val assets = accounts.filter { account ->
+            val group = try { com.zincstate.manifest.core.model.AccountGroup.valueOf(account.group) } catch(_: Exception) { null }
+            group?.isLiability == false || group == null
+        }
+        val liabilities = accounts.filter { account ->
+            val group = try { com.zincstate.manifest.core.model.AccountGroup.valueOf(account.group) } catch(_: Exception) { null }
+            group?.isLiability == true
+        }
 
-        if (grouped.isEmpty()) {
+        if (accounts.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -108,12 +98,15 @@ fun AccountsScreen(
                 )
             }
         } else {
-            val totalBalance = accounts.sumOf { it.balance }
-            val netWorthFormatted = com.zincstate.manifest.core.common.CurrencyFormatter.format(totalBalance)
+            val totalAssets = assets.sumOf { it.balance }
+            val totalLiabilities = liabilities.sumOf { it.balance }
+            val netWorth = totalAssets - totalLiabilities
+            
+            val netWorthFormatted = com.zincstate.manifest.core.common.CurrencyFormatter.format(netWorth)
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 120.dp)
+                contentPadding = PaddingValues(bottom = 120.dp)
             ) {
                 item {
                     Column(
@@ -132,68 +125,99 @@ fun AccountsScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text(
+                                text = "Assets: ${com.zincstate.manifest.core.common.CurrencyFormatter.format(totalAssets)}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = ManifestThemeTokens.colors.income
+                            )
+                            Text(
+                                text = "Liabilities: ${com.zincstate.manifest.core.common.CurrencyFormatter.format(totalLiabilities)}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = ManifestThemeTokens.colors.expense
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                grouped.forEach { (group, accountsInGroup) ->
-                    item(key = "group_$group") {
+
+                if (assets.isNotEmpty()) {
+                    item {
                         Text(
-                            text = group,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = ManifestThemeTokens.colors.textSecondary,
+                            text = "ASSETS",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = ManifestThemeTokens.colors.textTertiary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
-
-                    items(items = accountsInGroup, key = { it.id }) { account ->
+                    items(items = assets, key = { it.id }) { account ->
                         Box(modifier = Modifier.animateItem()) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                onClick = { onAccountClick(account.id) }
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        account.name,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            account.balanceFormatted,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Icon(
-                                            Icons.Default.ChevronRight,
-                                            contentDescription = null,
-                                            tint = ManifestThemeTokens.colors.textTertiary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                            }
+                            AccountItem(account, onAccountClick)
                         }
                     }
+                }
 
-                    item(key = "spacer_$group") {
-                        Spacer(modifier = Modifier.height(8.dp))
+                if (liabilities.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "LIABILITIES",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = ManifestThemeTokens.colors.textTertiary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(items = liabilities, key = { it.id }) { account ->
+                        Box(modifier = Modifier.animateItem()) {
+                            AccountItem(account, onAccountClick)
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccountItem(account: AccountUiItem, onAccountClick: (String) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        onClick = { onAccountClick(account.id) }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                account.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    account.balanceFormatted,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = ManifestThemeTokens.colors.textTertiary,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }

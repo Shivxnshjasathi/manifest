@@ -24,8 +24,8 @@
     <string msgid="3417662926640357176" name="abc_searchview_description_search">"Iskanje"</string>
     <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Pošiljanje poizvedbe"</string>
     <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Glasovno iskanje"</string>
-    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Skupna raba z:"</string>
-    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Skupna raba z drugimi prek aplikacije <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Deljenje z:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Deljenje z drugimi prek aplikacije <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Strnitev"</string>
     <string msgid="9020470552698189270" name="autofill">"Samodejno izpolnjevanje"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Sprejmi"</string>
@@ -93,6 +93,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Pogovorno okno"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Strnjeno"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Razširjeno"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Preklop spustnega menija"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Iskanje"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Opusti"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Predlogi so spodaj"</string>

@@ -26,6 +26,6 @@
       applicationId="com.zincstate.manifest.core.common"
       generatedSourceFolders="build/generated/ksp/release/java:build/generated/ksp/release/kotlin:build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/607b0b277d845823aa63f6e46a4a85e0/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/8a80ee8ac4631bbdc7a10163acdf81f0/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

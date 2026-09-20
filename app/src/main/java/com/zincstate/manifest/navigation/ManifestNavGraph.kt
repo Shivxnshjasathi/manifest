@@ -147,14 +147,17 @@ fun ManifestNavGraph(
                 }
                 
                 composable(Destinations.STATS) {
-                    StatsScreen()
+                    StatsScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
                 }
                 
                 composable(Destinations.ACCOUNTS) {
                     AccountsScreen(
                         onAccountClick = { id ->
                             navController.navigate(Destinations.accountDetailsRoute(id))
-                        }
+                        },
+                        onBackClick = { navController.popBackStack() }
                     )
                 }
 

@@ -5,7 +5,7 @@
     "kind": "Directory"
   },
   "applicationId": "com.zincstate.manifest.feature.addedit",
-  "variantName": "debug",
+  "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",

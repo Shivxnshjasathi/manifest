@@ -1,10 +1,10 @@
 [
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/color/vector_tint_color.xml",
+        "merged": "com.zincstate.manifest.core.ui-release-43:/color/vector_tint_color.xml",
         "source": "com.zincstate.manifest.core.ui-ui-release-19:/color/vector_tint_color.xml"
     },
     {
-        "merged": "com.zincstate.manifest.core.ui-release-41:/color/vector_tint_theme_color.xml",
+        "merged": "com.zincstate.manifest.core.ui-release-43:/color/vector_tint_theme_color.xml",
         "source": "com.zincstate.manifest.core.ui-ui-release-19:/color/vector_tint_theme_color.xml"
     }
 ]

@@ -114,6 +114,7 @@ fun TransactionsDescription(
                         isIncome = item.isIncome,
                         isAmountVisible = state.isAmountVisible,
                         isSelected = state.selectedTransactionIds.contains(item.id),
+                        hasAttachment = item.hasAttachment,
                         onClick = { onTransactionClick(item.id) },
                         onLongClick = { onTransactionLongClick(item.id) }
                     )

@@ -1,5 +1,7 @@
 package com.zincstate.manifest.feature.addedit
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,7 +36,7 @@ data class AddEditUiState(
     val type: TransactionType = TransactionType.EXPENSE,
     val amount: String = "",
     val date: String = DateUtils.today(),
-    val selectedCategoryId: String = "",
+    val selectedCategoryId: String? = "",
     val selectedAccountId: String = "",
     val selectedToAccountId: String = "",
     val note: String = "",
@@ -49,7 +51,9 @@ data class AddEditUiState(
     val contacts: List<ContactEntity> = emptyList(),
     val selectedContactIds: Set<String> = emptySet(),
     val isSplitEnabled: Boolean = false,
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val attachmentUri: Uri? = null,
+    val attachmentPath: String? = null
 )
 
 @HiltViewModel
@@ -66,7 +70,7 @@ class AddEditViewModel @Inject constructor(
     private val _type = MutableStateFlow(TransactionType.EXPENSE)
     private val _amount = MutableStateFlow("")
     private val _date = MutableStateFlow(DateUtils.today())
-    private val _selectedCategoryId = MutableStateFlow("")
+    private val _selectedCategoryId = MutableStateFlow<String?>("")
     private val _selectedAccountId = MutableStateFlow("")
     private val _selectedToAccountId = MutableStateFlow("")
     private val _note = MutableStateFlow("")
@@ -78,6 +82,8 @@ class AddEditViewModel @Inject constructor(
     private val _noteSuggestions = MutableStateFlow<List<String>>(emptyList())
     private val _isSplitEnabled = MutableStateFlow(false)
     private val _selectedContactIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _attachmentUri = MutableStateFlow<Uri?>(null)
+    private val _attachmentPath = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<AddEditUiState> = combine(
         _type, _amount, _date, _selectedCategoryId,
@@ -88,12 +94,14 @@ class AddEditViewModel @Inject constructor(
         _noteSuggestions,
         contactDao.getAllContacts(),
         _selectedContactIds,
-        _isSplitEnabled
+        _isSplitEnabled,
+        _attachmentUri,
+        _attachmentPath
     ) { args ->
         @Suppress("UNCHECKED_CAST")
         val type = args[0] as TransactionType
         val amount = args[1] as String
-        val catId = args[3] as String
+        val catId = args[3] as String?
         val accId = args[4] as String
         val toAccId = args[5] as String
         val note = args[6] as String
@@ -102,7 +110,7 @@ class AddEditViewModel @Inject constructor(
         val amountVal = amount.toDoubleOrNull() ?: 0.0
         val isAmountValid = amountVal > 0
         val isNoteValid = note.isNotBlank()
-        val isCategoryValid = catId.isNotBlank()
+        val isCategoryValid = if (type == TransactionType.TRANSFER) true else !catId.isNullOrBlank()
         val isAccountValid = accId.isNotBlank()
         val isTransferValid = if (type == TransactionType.TRANSFER) {
             toAccId.isNotBlank() && toAccId != accId
@@ -129,7 +137,9 @@ class AddEditViewModel @Inject constructor(
             contacts = args[15] as List<ContactEntity>,
             selectedContactIds = selectedContactIds,
             isSplitEnabled = args[17] as Boolean,
-            isValid = isAmountValid && isNoteValid && isCategoryValid && isAccountValid && isTransferValid
+            isValid = isAmountValid && isNoteValid && isCategoryValid && isAccountValid && isTransferValid,
+            attachmentUri = args[18] as Uri?,
+            attachmentPath = args[19] as String?
         )
     }.stateIn(
         scope = viewModelScope,
@@ -160,7 +170,7 @@ class AddEditViewModel @Inject constructor(
     fun setType(type: TransactionType) { _type.value = type }
     fun setAmount(amount: String) { _amount.value = amount }
     fun setDate(date: String) { _date.value = date }
-    fun setCategory(categoryId: String) { _selectedCategoryId.value = categoryId }
+    fun setCategory(categoryId: String?) { _selectedCategoryId.value = categoryId }
     fun setAccount(accountId: String) { _selectedAccountId.value = accountId }
     fun setToAccount(accountId: String) { _selectedToAccountId.value = accountId }
     fun setNote(note: String) { 
@@ -175,6 +185,15 @@ class AddEditViewModel @Inject constructor(
     }
     fun setDescription(description: String) { _description.value = description }
     fun toggleMoreDetails() { _showMoreDetails.value = !_showMoreDetails.value }
+
+    fun setAttachmentUri(uri: Uri?) {
+        _attachmentUri.value = uri
+    }
+
+    fun removeAttachment() {
+        _attachmentUri.value = null
+        _attachmentPath.value = null
+    }
 
     fun toggleSplit(enabled: Boolean) { _isSplitEnabled.value = enabled }
 
@@ -228,15 +247,21 @@ class AddEditViewModel @Inject constructor(
         }
     }
 
-    fun save() {
+    fun save(context: Context) {
         viewModelScope.launch {
             val amountValue = _amount.value.toDoubleOrNull() ?: return@launch
             if (amountValue <= 0) return@launch
             if (_note.value.isBlank()) return@launch
-            if (_selectedCategoryId.value.isBlank()) return@launch
+            if (_type.value != TransactionType.TRANSFER && _selectedCategoryId.value.isNullOrBlank()) return@launch
             if (_selectedAccountId.value.isBlank()) return@launch
 
             _isSaving.value = true
+
+            // Handle attachment saving
+            var savedPath = _attachmentPath.value
+            _attachmentUri.value?.let { uri ->
+                savedPath = saveImageToInternalStorage(context, uri)
+            }
 
             // 1. Reverse old impact if editing
             if (editId != null) {
@@ -250,11 +275,12 @@ class AddEditViewModel @Inject constructor(
                 type = _type.value.name,
                 amount = amountValue,
                 date = _date.value,
-                categoryId = _selectedCategoryId.value,
+                categoryId = if (_type.value == TransactionType.TRANSFER) null else _selectedCategoryId.value,
                 accountId = _selectedAccountId.value,
                 toAccountId = _selectedToAccountId.value.ifBlank { null },
                 note = _note.value,
                 description = _description.value,
+                attachmentPath = savedPath,
                 updatedAt = System.currentTimeMillis()
             )
 
@@ -307,6 +333,24 @@ class AddEditViewModel @Inject constructor(
                 accountDao.updateBalance(tx.accountId, -tx.amount)
                 tx.toAccountId?.let { accountDao.updateBalance(it, tx.amount) }
             }
+        }
+    }
+
+    private fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+        return try {
+            val fileName = "receipt_${UUID.randomUUID()}.jpg"
+            val directory = context.getDir("receipts", Context.MODE_PRIVATE)
+            val file = java.io.File(directory, fileName)
+            
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

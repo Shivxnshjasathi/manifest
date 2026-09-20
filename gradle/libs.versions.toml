@@ -32,8 +32,20 @@ workManager = "2.11.0"
 # Biometric
 biometric = "1.1.0"
 
+# Splash Screen
+splashscreen = "1.0.1"
+
+# Timber
+timber = "5.0.1"
+
+# Coil
+coil = "2.7.0"
+
 # Gson
 gson = "2.12.1"
+
+# Material Components (for XML themes)
+material = "1.12.0"
 
 [libraries]
 # Core
@@ -91,6 +103,15 @@ androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", vers
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version = "1.1.0-alpha06" }
 
+# Splash Screen
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+
+# Timber
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# Coil
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
 # Gson
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
@@ -98,6 +119,9 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+# Material
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

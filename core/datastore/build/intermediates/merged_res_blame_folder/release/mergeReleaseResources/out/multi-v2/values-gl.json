@@ -4,7 +4,7 @@
             "outputFile": "com.zincstate.manifest.core.datastore-mergeReleaseResources-16:/values-gl/values-gl.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/eefb5c4a5e594a7b40d23ff99941d845/transformed/core-1.13.1/res/values-gl/values-gl.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/47b86b2eaeb2a610aa7a0411cc038377/transformed/core-1.13.1/res/values-gl/values-gl.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -19,7 +19,7 @@
             "outputFile": "com.zincstate.manifest.core.datastore-release-18:/values-gl/values-gl.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/eefb5c4a5e594a7b40d23ff99941d845/transformed/core-1.13.1/res/values-gl/values-gl.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/47b86b2eaeb2a610aa7a0411cc038377/transformed/core-1.13.1/res/values-gl/values-gl.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

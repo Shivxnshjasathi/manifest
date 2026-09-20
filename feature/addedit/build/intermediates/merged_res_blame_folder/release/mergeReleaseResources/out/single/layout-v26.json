@@ -1,6 +1,6 @@
 [
     {
-        "merged": "com.zincstate.manifest.feature.addedit-release-70:/layout-v26/abc_screen_toolbar.xml",
-        "source": "com.zincstate.manifest.feature.addedit-appcompat-1.2.0-27:/layout-v26/abc_screen_toolbar.xml"
+        "merged": "com.zincstate.manifest.feature.addedit-release-72:/layout-v26/abc_screen_toolbar.xml",
+        "source": "com.zincstate.manifest.feature.addedit-appcompat-1.6.1-13:/layout-v26/abc_screen_toolbar.xml"
     }
 ]

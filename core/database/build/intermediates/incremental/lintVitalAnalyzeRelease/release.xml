@@ -6,7 +6,7 @@
     mergedManifest="build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml"
     proguardFiles="build/intermediates/default_proguard_files/global/proguard-android.txt-8.13.2"
     partialResultsDir="build/intermediates/lint_vital_partial_results/release/lintVitalAnalyzeRelease/out"
-    desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/607b0b277d845823aa63f6e46a4a85e0/transformed/D8BackportedDesugaredMethods.txt">
+    desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/8a80ee8ac4631bbdc7a10163acdf81f0/transformed/D8BackportedDesugaredMethods.txt">
   <buildFeatures
       namespacing="REQUIRED"/>
   <sourceProviders>
@@ -26,6 +26,6 @@
       applicationId="com.zincstate.manifest.core.database"
       generatedSourceFolders="build/generated/ksp/release/java:build/generated/ksp/release/kotlin:build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/607b0b277d845823aa63f6e46a4a85e0/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/8a80ee8ac4631bbdc7a10163acdf81f0/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

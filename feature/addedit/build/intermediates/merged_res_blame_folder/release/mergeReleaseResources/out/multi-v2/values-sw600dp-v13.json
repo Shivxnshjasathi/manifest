@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.zincstate.manifest.feature.addedit-release-70:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "outputFile": "com.zincstate.manifest.feature.addedit-release-72:/values-sw600dp-v13/values-sw600dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3cc48a9994377ecd9c9fcb85b994d244/transformed/appcompat-1.6.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -16,10 +16,10 @@
             ]
         },
         {
-            "outputFile": "com.zincstate.manifest.feature.addedit-mergeReleaseResources-68:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "outputFile": "com.zincstate.manifest.feature.addedit-mergeReleaseResources-70:/values-sw600dp-v13/values-sw600dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/5e73fe8caa6854688cbacc2785ba2bbf/transformed/appcompat-1.2.0/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3cc48a9994377ecd9c9fcb85b994d244/transformed/appcompat-1.6.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

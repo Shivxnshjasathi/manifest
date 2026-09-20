@@ -1,9 +1,9 @@
 <libraries>
   <library
-      name="androidx.compose.runtime:runtime-android:1.6.8@aar"
-      jars="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/6334af6fc6f824e8f11ec4f734d5b880/transformed/runtime-release/jars/classes.jar"
-      resolved="androidx.compose.runtime:runtime-android:1.6.8"
-      folder="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/6334af6fc6f824e8f11ec4f734d5b880/transformed/runtime-release"
+      name="androidx.compose.runtime:runtime-android:1.7.3@aar"
+      jars="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3c7473d60ad0ce27e2f6f86475bf71b7/transformed/runtime-release/jars/classes.jar"
+      resolved="androidx.compose.runtime:runtime-android:1.7.3"
+      folder="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3c7473d60ad0ce27e2f6f86475bf71b7/transformed/runtime-release"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -13,13 +13,26 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1@jar"
-      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.7.1/63a0779cf668e2a47d13fda7c3b0c4f8dc7762f4/kotlinx-coroutines-core-jvm-1.7.1.jar"
-      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1"/>
+      name="androidx.annotation:annotation-experimental:1.4.1@aar"
+      jars="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3f03c9111256e4b89752699be4d1d324/transformed/annotation-experimental-1.4.1/jars/classes.jar"
+      resolved="androidx.annotation:annotation-experimental:1.4.1"
+      folder="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/3f03c9111256e4b89752699be4d1d324/transformed/annotation-experimental-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
   <library
-      name="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1@jar"
-      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.7.1/c2d86b569f10b7fc7e28d3f50c0eed97897d77a7/kotlinx-coroutines-android-1.7.1.jar"
-      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"/>
+      name="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3@jar"
+      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.7.3/2b09627576f0989a436a00a4a54b55fa5026fb86/kotlinx-coroutines-core-jvm-1.7.3.jar"
+      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3"/>
+  <library
+      name="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3@jar"
+      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.7.3/38d9cad3a0b03a10453b56577984bdeb48edeed5/kotlinx-coroutines-android-1.7.3.jar"
+      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"/>
   <library
       name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20@jar"
       jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.8.20/73576ddf378c5b4f1f6b449fe6b119b8183fc078/kotlin-stdlib-jdk8-1.8.20.jar"
@@ -37,11 +50,11 @@
       jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/8cc20c07506ec18e0834947b84a864bfc094484e/annotations-23.0.0.jar"
       resolved="org.jetbrains:annotations:23.0.0"/>
   <library
-      name="androidx.collection:collection-jvm:1.4.0@jar"
-      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.0/e209fb7bd1183032f55a0408121c6251a81acb49/collection-jvm-1.4.0.jar"
-      resolved="androidx.collection:collection-jvm:1.4.0"/>
+      name="androidx.collection:collection-jvm:1.4.4@jar"
+      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.4/da13a7e557c430276b8cb490420effebc1398c0d/collection-jvm-1.4.4.jar"
+      resolved="androidx.collection:collection-jvm:1.4.4"/>
   <library
-      name="androidx.annotation:annotation-jvm:1.7.0@jar"
-      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-jvm/1.7.0/920472d40adcdef5e18708976b3e314f9a636fcd/annotation-jvm-1.7.0.jar"
-      resolved="androidx.annotation:annotation-jvm:1.7.0"/>
+      name="androidx.annotation:annotation-jvm:1.8.1@jar"
+      jars="/Users/shivanshjasathi/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-jvm/1.8.1/b8a16fe526014b7941c1debaccaf9c5153692dbb/annotation-jvm-1.8.1.jar"
+      resolved="androidx.annotation:annotation-jvm:1.8.1"/>
 </libraries>

@@ -127,6 +127,26 @@ interface TransactionDao {
     """)
     fun getDailyExpensesSince(startDate: String): Flow<List<DailyTotal>>
 
+    // Transactions for a specific date range
+    @Query("""
+        SELECT * FROM transactions 
+        WHERE date BETWEEN :startDate AND :endDate
+        ORDER BY date DESC, createdAt DESC
+    """)
+    fun getTransactionsInRange(startDate: String, endDate: String): Flow<List<TransactionEntity>>
+
+    // Multi-month summary for bar charts (last N months)
+    @Query("""
+        SELECT substr(date, 1, 7) as month,
+               SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END) as totalExpense,
+               SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END) as totalIncome
+        FROM transactions 
+        WHERE date >= :sinceDate
+        GROUP BY month
+        ORDER BY month ASC
+    """)
+    fun getMonthlyTotalsSince(sinceDate: String): Flow<List<MonthlyTotal>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(transaction: TransactionEntity)
 
@@ -165,6 +185,12 @@ interface TransactionDao {
 
 data class DailyTotal(
     val date: String,
+    val totalExpense: Double,
+    val totalIncome: Double
+)
+
+data class MonthlyTotal(
+    val month: String,
     val totalExpense: Double,
     val totalIncome: Double
 )

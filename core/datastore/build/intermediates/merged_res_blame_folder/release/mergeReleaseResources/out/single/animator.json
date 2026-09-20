@@ -1,26 +1,26 @@
 [
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_fade_exit.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_fade_exit.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_fade_exit.xml"
     },
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_open_exit.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_open_exit.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_open_exit.xml"
     },
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_close_exit.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_close_exit.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_close_exit.xml"
     },
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_fade_enter.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_fade_enter.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_fade_enter.xml"
     },
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_open_enter.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_open_enter.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_open_enter.xml"
     },
     {
         "merged": "com.zincstate.manifest.core.datastore-release-18:/animator/fragment_close_enter.xml",
-        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-6:/animator/fragment_close_enter.xml"
+        "source": "com.zincstate.manifest.core.datastore-fragment-1.5.1-11:/animator/fragment_close_enter.xml"
     }
 ]

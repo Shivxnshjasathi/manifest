@@ -1,5 +1,6 @@
 package com.zincstate.manifest.feature.budgets
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -108,16 +110,61 @@ fun BudgetsScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("No budgets set for this month", color = ManifestThemeTokens.colors.textSecondary)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { showAddSheet = true }) {
-                        Text("Create Budget")
+                    Row {
+                        Button(onClick = { showAddSheet = true }) {
+                            Text("Create Budget")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(onClick = { viewModel.copyPreviousMonthBudgets() }) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Copy Previous")
+                        }
                     }
                 }
             }
         } else {
+            // Overall summary card
+            val totalLimit = budgets.sumOf { it.limit }
+            val totalSpent = budgets.sumOf { it.spent }
+            val overallProgress = if (totalLimit > 0) (totalSpent / totalLimit).coerceIn(0.0, 1.0).toFloat() else 0f
+            
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Monthly Overview", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LinearProgressIndicator(
+                        progress = { overallProgress },
+                        modifier = Modifier.fillMaxWidth().height(8.dp),
+                        strokeCap = StrokeCap.Round
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "${(overallProgress * 100).toInt()}% of monthly budget spent",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ManifestThemeTokens.colors.textSecondary
+                    )
+                }
+            }
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 120.dp, start = 16.dp, end = 16.dp)
             ) {
+                item {
+                    TextButton(
+                        onClick = { viewModel.copyPreviousMonthBudgets() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Copy Previous Month's Budgets")
+                    }
+                }
                 items(budgets, key = { it.id }) { budget ->
                     Box(modifier = Modifier.animateItem()) {
                         BudgetCard(
@@ -170,13 +217,34 @@ fun BudgetCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val statusText = when {
+                        isOverBudget -> "Exceeded"
+                        progress > 0.8f -> "Near Limit"
+                        else -> "On Track"
+                    }
+                    Surface(
+                        color = progressColor.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, progressColor.copy(alpha = 0.2f))
+                    ) {
+                        Text(
+                            text = statusText,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = progressColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

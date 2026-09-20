@@ -1,84 +1,53 @@
 package com.zincstate.manifest.feature.transactions
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlin.math.abs
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.ui.draw.clip
 import com.zincstate.manifest.core.common.DateUtils
-import com.zincstate.manifest.core.ui.components.DateHeader
-import com.zincstate.manifest.core.ui.components.StatCard
-import com.zincstate.manifest.core.ui.components.TransactionItem
-import com.zincstate.manifest.core.ui.components.TransactionTopBar
+import com.zincstate.manifest.core.ui.R
+import com.zincstate.manifest.core.ui.components.*
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
-
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import kotlinx.coroutines.launch
+import java.time.LocalDate
+import kotlin.math.abs
 
-@OptIn(ExperimentalMaterial3Api::class)
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TransactionsScreen(
     onTransactionClick: (String) -> Unit,
@@ -86,188 +55,207 @@ fun TransactionsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showFilterSheet by remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(initialPage = state.selectedTab, pageCount = { 5 })
+    val coroutineScope = rememberCoroutineScope()
+
+    // Nested Scroll logic to scroll the header away
+    val headerHeight = 220.dp
+    val headerHeightPx = with(LocalDensity.current) { headerHeight.toPx() }
+    val headerOffsetHeightPx = remember { mutableStateOf(0f) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = headerOffsetHeightPx.value + delta
+                headerOffsetHeightPx.value = newOffset.coerceIn(-headerHeightPx, 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
+    // Sync ViewModel -> Pager
+    LaunchedEffect(state.selectedTab) {
+        if (pagerState.currentPage != state.selectedTab) {
+            pagerState.animateScrollToPage(state.selectedTab)
+        }
+    }
+
+    // Sync Pager -> ViewModel
+    LaunchedEffect(pagerState.settledPage) {
+        if (state.selectedTab != pagerState.settledPage) {
+            viewModel.selectTab(pagerState.settledPage)
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { _, dragAmount ->
-                    if (abs(dragAmount) > 50) {
-                        if (dragAmount > 0) {
-                            viewModel.navigateMonth(-1)
-                        } else {
-                            viewModel.navigateMonth(1)
-                        }
-                    }
-                }
-            }
+            .nestedScroll(nestedScrollConnection)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .offset { IntOffset(x = 0, y = headerOffsetHeightPx.value.roundToInt()) }
         ) {
-        // ... (rest of the Column content)
-        // Search overlay or Top bar
-        AnimatedVisibility(
-            visible = state.isSearchActive,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            SearchBar(
-                query = state.searchQuery,
-                onQueryChange = viewModel::updateSearchQuery,
-                onClose = viewModel::toggleSearch
-            )
-        }
-
-        AnimatedVisibility(
-            visible = !state.isSearchActive && !state.isSelectionMode,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            TransactionTopBar(
-                monthYearText = state.monthDisplayText,
-                isAmountVisible = state.isAmountVisible,
-                onSearchClick = viewModel::toggleSearch,
-                onToggleVisibility = viewModel::toggleAmountVisibility,
-                onPreviousMonth = { viewModel.navigateMonth(-1) },
-                onNextMonth = { viewModel.navigateMonth(1) }
-            )
-        }
-
-        AnimatedVisibility(
-            visible = state.isSelectionMode,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            SelectionTopBar(
-                selectedCount = state.selectedTransactionIds.size,
-                onClearSelection = viewModel::clearSelection
-            )
-        }
-
-        // Stats row
-        AnimatedVisibility(visible = !state.isSearchActive) {
-            Row(
+            // FIXED HEADER (Stays consistent across tabs, but scrolls vertically)
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .background(MaterialTheme.colorScheme.background)
+                    .height(headerHeight)
             ) {
-                StatCard(
-                    label = "Income",
-                    amount = state.totalIncome,
-                    isAmountVisible = state.isAmountVisible,
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    label = "Expense",
-                    amount = state.totalExpense,
-                    isAmountVisible = state.isAmountVisible,
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    label = "Total",
-                    amount = state.total,
-                    isAmountVisible = state.isAmountVisible,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
+                // Search overlay or Top bar
+                AnimatedVisibility(
+                    visible = state.isSearchActive,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    SearchBar(
+                        query = state.searchQuery,
+                        onQueryChange = viewModel::updateSearchQuery,
+                        onClose = viewModel::toggleSearch
+                    )
+                }
 
-        // Tabs
-        if (!state.isSearchActive) {
-            val tabs = listOf("Daily", "Calendar", "Monthly", "Summary", "Description")
-            ScrollableTabRow(
-                selectedTabIndex = state.selectedTab,
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-                edgePadding = 16.dp,
-                divider = {},
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = state.selectedTab == index,
-                        onClick = { viewModel.selectTab(index) },
-                        text = {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = if (state.selectedTab == index) FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (state.selectedTab == index) {
-                                    MaterialTheme.colorScheme.onBackground
-                                } else {
-                                    ManifestThemeTokens.colors.textTertiary
+                AnimatedVisibility(
+                    visible = !state.isSearchActive && !state.isSelectionMode,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    TransactionTopBar(
+                        monthYearText = state.monthDisplayText,
+                        isAmountVisible = state.isAmountVisible,
+                        onSearchClick = viewModel::toggleSearch,
+                        onToggleVisibility = viewModel::toggleAmountVisibility,
+                        onPreviousMonth = { viewModel.navigateMonth(-1) },
+                        onNextMonth = { viewModel.navigateMonth(1) }
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = state.isSelectionMode,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    SelectionTopBar(
+                        selectedCount = state.selectedTransactionIds.size,
+                        onClearSelection = viewModel::clearSelection
+                    )
+                }
+
+                // Stats row
+                AnimatedVisibility(visible = !state.isSearchActive) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        StatCard(
+                            label = stringResource(R.string.income),
+                            amount = state.totalIncome,
+                            isAmountVisible = state.isAmountVisible,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            label = stringResource(R.string.expense),
+                            amount = state.totalExpense,
+                            isAmountVisible = state.isAmountVisible,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            label = "Total",
+                            amount = state.total,
+                            isAmountVisible = state.isAmountVisible,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                // Tabs
+                if (!state.isSearchActive) {
+                    val tabs = listOf("Daily", "Calendar", "Weekly", "Monthly", "Summary")
+                    ScrollableTabRow(
+                        selectedTabIndex = pagerState.targetPage,
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                        edgePadding = 16.dp,
+                        divider = {},
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.targetPage == index,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = if (pagerState.targetPage == index) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = if (pagerState.targetPage == index) {
+                                            MaterialTheme.colorScheme.onBackground
+                                        } else {
+                                            ManifestThemeTokens.colors.textTertiary
+                                        }
+                                    )
                                 }
                             )
                         }
-                    )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+
+            // CONTENT (Only this part swipes)
+            if (state.isSearchActive) {
+                SearchResults(
+                    results = state.searchResults,
+                    isAmountVisible = state.isAmountVisible,
+                    selectedIds = state.selectedTransactionIds,
+                    onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
+                    onTransactionLongClick = viewModel::toggleSelection,
+                    onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                )
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                    userScrollEnabled = !state.isSelectionMode
+                ) { pageIndex ->
+                    when (pageIndex) {
+                        0 -> DailyView(
+                            groupedTransactions = state.groupedTransactions,
+                            dailyTotals = state.dailyTotals,
+                            isAmountVisible = state.isAmountVisible,
+                            selectedIds = state.selectedTransactionIds,
+                            onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
+                            onTransactionLongClick = viewModel::toggleSelection,
+                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                        )
+                        1 -> TransactionsCalendar(
+                            state = state,
+                            onDateSelect = viewModel::selectCalendarDate,
+                            onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
+                            onTransactionLongClick = viewModel::toggleSelection,
+                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                        )
+                        2 -> TransactionsWeekly(
+                            state = state,
+                            onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
+                            onTransactionLongClick = viewModel::toggleSelection,
+                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                        )
+                        3 -> TransactionsMonthly(state = state)
+                        4 -> TransactionsSummary(state = state)
+                    }
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Content
-        val pagerState = rememberPagerState(initialPage = 0, pageCount = { 5 })
-        
-        LaunchedEffect(state.selectedTab) {
-            if (pagerState.currentPage != state.selectedTab) {
-                pagerState.animateScrollToPage(state.selectedTab)
-            }
-        }
-        
-        LaunchedEffect(pagerState.currentPage) {
-            if (state.selectedTab != pagerState.currentPage) {
-                viewModel.selectTab(pagerState.currentPage)
-            }
-        }
-
-        if (state.isSearchActive) {
-            SearchResults(
-                results = state.searchResults,
-                isAmountVisible = state.isAmountVisible,
-                selectedIds = state.selectedTransactionIds,
-                onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
-                onTransactionLongClick = viewModel::toggleSelection,
-                onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
-            )
-        } else {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                userScrollEnabled = !state.isSelectionMode
-            ) { pageIndex ->
-                when (pageIndex) {
-                    0 -> DailyView(
-                        groupedTransactions = state.groupedTransactions,
-                        dailyTotals = state.dailyTotals,
-                        isAmountVisible = state.isAmountVisible,
-                        selectedIds = state.selectedTransactionIds,
-                        onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
-                        onTransactionLongClick = viewModel::toggleSelection,
-                        onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
-                    )
-                    1 -> TransactionsCalendar(
-                        state = state,
-                        onDateSelect = viewModel::selectCalendarDate,
-                        onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
-                        onTransactionLongClick = viewModel::toggleSelection,
-                        onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
-                    )
-                    2 -> TransactionsMonthly(state = state)
-                    3 -> TransactionsSummary(state = state)
-                    4 -> TransactionsDescription(
-                        state = state,
-                        onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
-                        onTransactionLongClick = viewModel::toggleSelection,
-                        onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
-                    )
-                }
-            }
-        }
         }
 
         // Floating Filter Button
@@ -279,24 +267,42 @@ fun TransactionsScreen(
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 120.dp, end = 16.dp)
         ) {
-            androidx.compose.material3.FloatingActionButton(
-                onClick = { showFilterSheet = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            val activeFilterCount = (if (state.filterType != null) 1 else 0) +
+                state.filterAccountIds.size +
+                state.filterCategoryIds.size +
+                (if (state.filterMinAmount != null || state.filterMaxAmount != null) 1 else 0)
+
+            BadgedBox(
+                badge = {
+                    if (activeFilterCount > 0) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ) {
+                            Text(activeFilterCount.toString())
+                        }
+                    }
+                }
             ) {
-                Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.FilterList,
-                    contentDescription = "Filter"
-                )
+                FloatingActionButton(
+                    onClick = { showFilterSheet = true },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = "Filter"
+                    )
+                }
             }
         }
 
         if (showFilterSheet) {
             FilterBottomSheet(
-                selectedType = state.filterType,
+                state = state,
                 onDismiss = { showFilterSheet = false },
-                onApply = { type ->
-                    viewModel.setFilter(type, null, null)
+                onApply = { type, accounts, categories, min, max, dates ->
+                    viewModel.setFilter(type, accounts, categories, min, max, dates)
                     showFilterSheet = false
                 },
                 onClear = {
@@ -308,49 +314,56 @@ fun TransactionsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun FilterBottomSheet(
-    selectedType: String?,
+    state: TransactionsUiState,
     onDismiss: () -> Unit,
-    onApply: (String?) -> Unit,
+    onApply: (String?, Set<String>, Set<String>, Double?, Double?, Pair<LocalDate?, LocalDate?>?) -> Unit,
     onClear: () -> Unit
 ) {
+    var selectedType by remember { mutableStateOf(state.filterType) }
+    val selectedAccountIds = remember { mutableStateListOf<String>().apply { addAll(state.filterAccountIds) } }
+    val selectedCategoryIds = remember { mutableStateListOf<String>().apply { addAll(state.filterCategoryIds) } }
+    var minAmount by remember { mutableStateOf(state.filterMinAmount?.toString() ?: "") }
+    var maxAmount by remember { mutableStateOf(state.filterMaxAmount?.toString() ?: "") }
+    
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
+        dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp, start = 24.dp, end = 24.dp),
+                .padding(bottom = 32.dp, start = 24.dp, end = 24.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Filter Transactions",
+                stringResource(R.string.filter_transactions),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
             
+            // Transaction Type
             Text(
-                "Transaction Type",
+                stringResource(R.string.transaction_type),
                 style = MaterialTheme.typography.labelLarge,
                 color = ManifestThemeTokens.colors.textSecondary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
-            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf("INCOME", "EXPENSE", "TRANSFER").forEach { type ->
-                    androidx.compose.material3.FilterChip(
+                    FilterChip(
                         selected = selectedType == type,
-                        onClick = { onApply(if (selectedType == type) null else type) },
+                        onClick = { selectedType = if (selectedType == type) null else type },
                         label = { Text(type.lowercase().replaceFirstChar { it.uppercase() }) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
@@ -358,23 +371,131 @@ private fun FilterBottomSheet(
                 }
             }
             
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Amount Range
+            Text(
+                stringResource(R.string.amount_range),
+                style = MaterialTheme.typography.labelLarge,
+                color = ManifestThemeTokens.colors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = minAmount,
+                    onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) minAmount = it },
+                    label = { Text(stringResource(R.string.min_hint)) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = maxAmount,
+                    onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) maxAmount = it },
+                    label = { Text(stringResource(R.string.max_hint)) },
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Accounts
+            Text(
+                stringResource(R.string.account),
+                style = MaterialTheme.typography.labelLarge,
+                color = ManifestThemeTokens.colors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                state.accounts.forEach { account ->
+                    val isSelected = selectedAccountIds.contains(account.id)
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            if (isSelected) selectedAccountIds.remove(account.id)
+                            else selectedAccountIds.add(account.id)
+                        },
+                        label = { Text(account.name) },
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Categories
+            Text(
+                stringResource(R.string.category),
+                style = MaterialTheme.typography.labelLarge,
+                color = ManifestThemeTokens.colors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                state.categories.forEach { category ->
+                    val isSelected = selectedCategoryIds.contains(category.id)
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            if (isSelected) selectedCategoryIds.remove(category.id)
+                            else selectedCategoryIds.add(category.id)
+                        },
+                        label = { Text("${category.icon} ${category.name}") },
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
             
-            androidx.compose.material3.Button(
-                onClick = onClear,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                shape = RoundedCornerShape(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("Clear Filters")
+                Button(
+                    onClick = onClear,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(stringResource(R.string.clear))
+                }
+                
+                Button(
+                    onClick = {
+                        onApply(
+                            selectedType,
+                            selectedAccountIds.toSet(),
+                            selectedCategoryIds.toSet(),
+                            minAmount.toDoubleOrNull(),
+                            maxAmount.toDoubleOrNull(),
+                            null
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(stringResource(R.string.apply))
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DailyView(
     groupedTransactions: Map<String, List<TransactionUiItem>>,
@@ -397,12 +518,12 @@ private fun DailyView(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "No transactions yet",
+                    text = stringResource(R.string.no_transactions),
                     style = MaterialTheme.typography.bodyLarge,
                     color = ManifestThemeTokens.colors.textSecondary
                 )
                 Text(
-                    text = "Tap + to add your first transaction",
+                    text = stringResource(R.string.add_first_transaction),
                     style = MaterialTheme.typography.bodySmall,
                     color = ManifestThemeTokens.colors.textTertiary
                 )
@@ -412,7 +533,7 @@ private fun DailyView(
     }
 
     LazyColumn(
-        contentPadding = PaddingValues(bottom = 120.dp), // space for bottom nav
+        contentPadding = PaddingValues(bottom = 120.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         groupedTransactions.forEach { (isoDate, transactions) ->
@@ -474,6 +595,7 @@ private fun DailyView(
                         isIncome = item.isIncome,
                         isAmountVisible = isAmountVisible,
                         isSelected = selectedIds.contains(item.id),
+                        hasAttachment = item.hasAttachment,
                         onClick = { onTransactionClick(item.id) },
                         onLongClick = { onTransactionLongClick(item.id) }
                     )
@@ -508,7 +630,7 @@ private fun SearchBar(
             modifier = Modifier.weight(1f),
             placeholder = {
                 Text(
-                    "Search transactions...",
+                    stringResource(R.string.search_hint),
                     color = ManifestThemeTokens.colors.textTertiary
                 )
             },
@@ -538,6 +660,7 @@ private fun SearchBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchResults(
     results: List<TransactionUiItem>,
@@ -550,7 +673,7 @@ private fun SearchResults(
     if (results.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
-                "No results found",
+                stringResource(R.string.no_results),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ManifestThemeTokens.colors.textSecondary
             )
@@ -564,7 +687,7 @@ private fun SearchResults(
     ) {
         item {
             Text(
-                "${results.size} results",
+                stringResource(R.string.results_count, results.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = ManifestThemeTokens.colors.textTertiary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -615,6 +738,7 @@ private fun SearchResults(
                     isIncome = item.isIncome,
                     isAmountVisible = isAmountVisible,
                     isSelected = selectedIds.contains(item.id),
+                    hasAttachment = item.hasAttachment,
                     onClick = { onTransactionClick(item.id) },
                     onLongClick = { onTransactionLongClick(item.id) }
                 )
@@ -644,7 +768,7 @@ fun SelectionTopBar(
             )
         }
         Text(
-            text = "$selectedCount Selected",
+            text = stringResource(R.string.selected_count, selectedCount),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -652,5 +776,3 @@ fun SelectionTopBar(
         )
     }
 }
-
-// Removed Placeholders

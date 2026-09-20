@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import java.time.LocalDate
+
 @Immutable
 data class TransactionUiItem(
     val id: String,
@@ -31,7 +33,8 @@ data class TransactionUiItem(
     val amount: String,
     val isIncome: Boolean,
     val date: String,
-    val type: String
+    val type: String,
+    val hasAttachment: Boolean = false
 )
 
 @Immutable
@@ -42,6 +45,16 @@ data class CategoryTotalUiItem(
     val rawAmount: Double,
     val isIncome: Boolean,
     val percentage: Float = 0f
+)
+
+@Immutable
+data class WeeklySummary(
+    val weekNumber: Int,
+    val dateRange: String,
+    val income: Double,
+    val expense: Double,
+    val net: Double,
+    val transactions: List<TransactionUiItem>
 )
 
 @Stable
@@ -55,6 +68,9 @@ data class TransactionsUiState(
     val groupedTransactions: Map<String, List<TransactionUiItem>> = emptyMap(),
     val dailyTotals: Map<String, String> = emptyMap(),
     val dailyTotalsRaw: Map<String, Double> = emptyMap(),
+    val dailyIncomeRaw: Map<String, Double> = emptyMap(),
+    val dailyExpenseRaw: Map<String, Double> = emptyMap(),
+    val weeklySummaries: List<WeeklySummary> = emptyList(),
     val isLoading: Boolean = true,
     val selectedTab: Int = 0, // 0=Daily, 1=Calendar, 2=Monthly, 3=Summary, 4=Description
     val isSearchActive: Boolean = false,
@@ -67,8 +83,13 @@ data class TransactionsUiState(
     val monthlyCategoryTotals: List<CategoryTotalUiItem> = emptyList(),
     val descriptionGroupedTransactions: Map<String, List<TransactionUiItem>> = emptyMap(),
     val filterType: String? = null,
-    val filterAccountId: String? = null,
-    val filterCategoryId: String? = null
+    val filterAccountIds: Set<String> = emptySet(),
+    val filterCategoryIds: Set<String> = emptySet(),
+    val filterMinAmount: Double? = null,
+    val filterMaxAmount: Double? = null,
+    val filterDateRange: Pair<LocalDate?, LocalDate?>? = null,
+    val accounts: List<AccountEntity> = emptyList(),
+    val categories: List<CategoryEntity> = emptyList()
 )
 
 private data class TransactionsDbData(
@@ -95,30 +116,38 @@ class TransactionsViewModel @Inject constructor(
     private val _selectedTransactionIds = MutableStateFlow<Set<String>>(emptySet())
     private val _selectedCalendarDate = MutableStateFlow<String?>(DateUtils.today())
     private val _filterType = MutableStateFlow<String?>(null)
-    private val _filterAccountId = MutableStateFlow<String?>(null)
-    private val _filterCategoryId = MutableStateFlow<String?>(null)
+    private val _filterAccountIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _filterCategoryIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _filterMinAmount = MutableStateFlow<Double?>(null)
+    private val _filterMaxAmount = MutableStateFlow<Double?>(null)
+    private val _filterDateRange = MutableStateFlow<Pair<LocalDate?, LocalDate?>?>(null)
 
     val uiState: StateFlow<TransactionsUiState> = combine(
         _currentMonth, _selectedTab, _isSearchActive, _searchQuery,
         _selectedTransactionIds, _selectedCalendarDate, _filterType,
-        _filterAccountId, _filterCategoryId, preferencesDataStore.isAmountVisible
+        _filterAccountIds, _filterCategoryIds, _filterMinAmount,
+        _filterMaxAmount, _filterDateRange, preferencesDataStore.isAmountVisible,
+        categoryDao.getAllCategories(), accountDao.getAllAccounts()
     ) { args ->
-        val month = args[0] as String
         @Suppress("UNCHECKED_CAST")
-        val selectedIds = args[4] as Set<String>
         TransactionsUiState(
-            currentMonth = month,
-            monthDisplayText = DateUtils.formatMonthYear(month),
+            currentMonth = args[0] as String,
+            monthDisplayText = DateUtils.formatMonthYear(args[0] as String),
             selectedTab = args[1] as Int,
             isSearchActive = args[2] as Boolean,
             searchQuery = args[3] as String,
-            selectedTransactionIds = selectedIds,
-            isSelectionMode = selectedIds.isNotEmpty(),
+            selectedTransactionIds = args[4] as Set<String>,
+            isSelectionMode = (args[4] as Set<String>).isNotEmpty(),
             selectedCalendarDate = args[5] as String?,
             filterType = args[6] as String?,
-            filterAccountId = args[7] as String?,
-            filterCategoryId = args[8] as String?,
-            isAmountVisible = args[9] as Boolean
+            filterAccountIds = args[7] as Set<String>,
+            filterCategoryIds = args[8] as Set<String>,
+            filterMinAmount = args[9] as Double?,
+            filterMaxAmount = args[10] as Double?,
+            filterDateRange = args[11] as Pair<LocalDate?, LocalDate?>?,
+            isAmountVisible = args[12] as Boolean,
+            categories = args[13] as List<CategoryEntity>,
+            accounts = args[14] as List<AccountEntity>
         )
     }.combine(
         _currentMonth.flatMapLatest { month ->
@@ -147,26 +176,34 @@ class TransactionsViewModel @Inject constructor(
 
         val filteredTxs = txs.filter { tx ->
             (state.filterType == null || tx.type == state.filterType) &&
-            (state.filterAccountId == null || tx.accountId == state.filterAccountId) &&
-            (state.filterCategoryId == null || tx.categoryId == state.filterCategoryId)
+            (state.filterAccountIds.isEmpty() || state.filterAccountIds.contains(tx.accountId)) &&
+            (state.filterCategoryIds.isEmpty() || state.filterCategoryIds.contains(tx.categoryId)) &&
+            (state.filterMinAmount == null || tx.amount >= state.filterMinAmount) &&
+            (state.filterMaxAmount == null || tx.amount <= state.filterMaxAmount) &&
+            (state.filterDateRange == null || (
+                (state.filterDateRange.first == null || !LocalDate.parse(tx.date).isBefore(state.filterDateRange.first)) &&
+                (state.filterDateRange.second == null || !LocalDate.parse(tx.date).isAfter(state.filterDateRange.second))
+            ))
         }
 
         val uiItems = filteredTxs.map { mapToUiItem(it, categoryMap, accountMap) }
         val grouped = uiItems.groupBy { it.date }
         
         // Calculate daily totals (net share)
-        val dailyTotalsRaw = grouped.mapValues { (_, items) ->
-            items.sumOf { item ->
-                val raw = item.amount.replace("₹", "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
-                when (item.type) {
-                    "INCOME" -> raw
-                    "EXPENSE" -> {
-                        val txSplits = splitMap[item.id] ?: emptyList()
-                        -(raw - txSplits.sumOf { it.amount })
-                    }
-                    else -> 0.0
-                }
+        val dailyIncomeRaw = grouped.mapValues { (_, items) ->
+            items.filter { it.type == "INCOME" }.sumOf { item ->
+                item.amount.replace("₹", "").replace(",", "").replace("+", "").toDoubleOrNull() ?: 0.0
             }
+        }
+        val dailyExpenseRaw = grouped.mapValues { (_, items) ->
+            items.filter { it.type == "EXPENSE" }.sumOf { item ->
+                val raw = item.amount.replace("₹", "").replace(",", "").replace("-", "").toDoubleOrNull() ?: 0.0
+                val txSplits = splitMap[item.id] ?: emptyList()
+                raw - txSplits.sumOf { it.amount }
+            }
+        }
+        val dailyTotalsRaw = grouped.mapValues { (date, _) ->
+            (dailyIncomeRaw[date] ?: 0.0) - (dailyExpenseRaw[date] ?: 0.0)
         }
 
         // Aggregate Month Totals
@@ -174,6 +211,42 @@ class TransactionsViewModel @Inject constructor(
         val totalExpense = filteredTxs.filter { it.type == "EXPENSE" }.sumOf { tx ->
             val splitAmount = splitMap[tx.id]?.sumOf { it.amount } ?: 0.0
             tx.amount - splitAmount
+        }
+
+        // Weekly Summaries
+        val weeklySummaries = mutableListOf<WeeklySummary>()
+        val monthYear = try { LocalDate.parse("${state.currentMonth}-01") } catch(e: Exception) { LocalDate.now().withDayOfMonth(1) }
+        val daysInMonth = monthYear.lengthOfMonth()
+        
+        for (week in 0 until 5) {
+            val startDay = week * 7 + 1
+            if (startDay > daysInMonth) break
+            val endDay = minOf((week + 1) * 7, daysInMonth)
+            
+            val weekTxs = uiItems.filter { item ->
+                val day = DateUtils.getDayOfMonth(item.date)
+                day in startDay..endDay
+            }
+            
+            val income = weekTxs.filter { it.type == "INCOME" }.sumOf { 
+                it.amount.replace("₹", "").replace(",", "").replace("+", "").replace("-", "").toDoubleOrNull() ?: 0.0 
+            }
+            val expense = weekTxs.filter { it.type == "EXPENSE" }.sumOf { 
+                val raw = it.amount.replace("₹", "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
+                val txSplits = splitMap[it.id] ?: emptyList()
+                raw - txSplits.sumOf { s -> s.amount }
+            }
+            
+            weeklySummaries.add(
+                WeeklySummary(
+                    weekNumber = week + 1,
+                    dateRange = "${monthYear.month.name.take(3)} $startDay - $endDay",
+                    income = income,
+                    expense = expense,
+                    net = income - expense,
+                    transactions = weekTxs
+                )
+            )
         }
 
         // Monthly Category Breakdown
@@ -203,9 +276,12 @@ class TransactionsViewModel @Inject constructor(
             groupedTransactions = grouped,
             dailyTotals = dailyTotalsRaw.mapValues { CurrencyFormatter.format(it.value) },
             dailyTotalsRaw = dailyTotalsRaw,
+            dailyIncomeRaw = dailyIncomeRaw,
+            dailyExpenseRaw = dailyExpenseRaw,
             totalIncome = CurrencyFormatter.format(totalIncome),
             totalExpense = CurrencyFormatter.format(totalExpense),
             total = CurrencyFormatter.format(totalIncome - totalExpense),
+            weeklySummaries = weeklySummaries,
             isLoading = false,
             transactionDatesInMonth = filteredTxs.map { DateUtils.getDayOfMonth(it.date) }.toSet(),
             monthlyCategoryTotals = finalCategoryTotals,
@@ -290,16 +366,29 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    fun setFilter(type: String?, accountId: String?, categoryId: String?) {
+    fun setFilter(
+        type: String?,
+        accountIds: Set<String>,
+        categoryIds: Set<String>,
+        minAmount: Double? = null,
+        maxAmount: Double? = null,
+        dateRange: Pair<LocalDate?, LocalDate?>? = null
+    ) {
         _filterType.value = type
-        _filterAccountId.value = accountId
-        _filterCategoryId.value = categoryId
+        _filterAccountIds.value = accountIds
+        _filterCategoryIds.value = categoryIds
+        _filterMinAmount.value = minAmount
+        _filterMaxAmount.value = maxAmount
+        _filterDateRange.value = dateRange
     }
 
     fun clearFilters() {
         _filterType.value = null
-        _filterAccountId.value = null
-        _filterCategoryId.value = null
+        _filterAccountIds.value = emptySet()
+        _filterCategoryIds.value = emptySet()
+        _filterMinAmount.value = null
+        _filterMaxAmount.value = null
+        _filterDateRange.value = null
     }
 
     private fun mapToUiItem(
@@ -307,19 +396,22 @@ class TransactionsViewModel @Inject constructor(
         categoryMap: Map<String, CategoryEntity>,
         accountMap: Map<String, AccountEntity>
     ): TransactionUiItem {
-        val category = categoryMap[tx.categoryId]
+        val category = tx.categoryId?.let { categoryMap[it] }
         val account = accountMap[tx.accountId]
         val isIncome = tx.type == "INCOME"
+        val isTransfer = tx.type == "TRANSFER"
+        
         return TransactionUiItem(
             id = tx.id,
-            categoryIcon = category?.icon ?: "📝",
-            categoryName = category?.name ?: "Unknown",
+            categoryIcon = if (isTransfer) "↔️" else category?.icon ?: "📝",
+            categoryName = if (isTransfer) "Transfer" else category?.name ?: "Unknown",
             note = tx.note,
             accountName = account?.name ?: "Unknown",
-            amount = CurrencyFormatter.formatWithSign(tx.amount, isIncome),
+            amount = if (isTransfer) CurrencyFormatter.format(tx.amount) else CurrencyFormatter.formatWithSign(tx.amount, isIncome),
             isIncome = isIncome,
             date = tx.date,
-            type = tx.type
+            type = tx.type,
+            hasAttachment = !tx.attachmentPath.isNullOrBlank()
         )
     }
 }

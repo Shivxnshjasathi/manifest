@@ -64,7 +64,11 @@ public final class TransactionDao_Impl implements TransactionDao {
         statement.bindString(2, entity.getType());
         statement.bindDouble(3, entity.getAmount());
         statement.bindString(4, entity.getDate());
-        statement.bindString(5, entity.getCategoryId());
+        if (entity.getCategoryId() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getCategoryId());
+        }
         statement.bindString(6, entity.getAccountId());
         if (entity.getToAccountId() == null) {
           statement.bindNull(7);
@@ -121,7 +125,11 @@ public final class TransactionDao_Impl implements TransactionDao {
         statement.bindString(2, entity.getType());
         statement.bindDouble(3, entity.getAmount());
         statement.bindString(4, entity.getDate());
-        statement.bindString(5, entity.getCategoryId());
+        if (entity.getCategoryId() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getCategoryId());
+        }
         statement.bindString(6, entity.getAccountId());
         if (entity.getToAccountId() == null) {
           statement.bindNull(7);
@@ -303,7 +311,11 @@ public final class TransactionDao_Impl implements TransactionDao {
           final String _tmpDate;
           _tmpDate = cursor.getString(_cursorIndexOfDate);
           final String _tmpCategoryId;
-          _tmpCategoryId = cursor.getString(_cursorIndexOfCategoryId);
+          if (cursor.isNull(_cursorIndexOfCategoryId)) {
+            _tmpCategoryId = null;
+          } else {
+            _tmpCategoryId = cursor.getString(_cursorIndexOfCategoryId);
+          }
           final String _tmpAccountId;
           _tmpAccountId = cursor.getString(_cursorIndexOfAccountId);
           final String _tmpToAccountId;
@@ -393,7 +405,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -491,7 +507,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -586,7 +606,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -676,7 +700,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -785,7 +813,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -951,7 +983,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -1237,6 +1273,159 @@ public final class TransactionDao_Impl implements TransactionDao {
             final double _tmpTotalIncome;
             _tmpTotalIncome = _cursor.getDouble(_cursorIndexOfTotalIncome);
             _item = new DailyTotal(_tmpDate,_tmpTotalExpense,_tmpTotalIncome);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<List<TransactionEntity>> getTransactionsInRange(final String startDate,
+      final String endDate) {
+    final String _sql = "\n"
+            + "        SELECT * FROM transactions \n"
+            + "        WHERE date BETWEEN ? AND ?\n"
+            + "        ORDER BY date DESC, createdAt DESC\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, startDate);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, endDate);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"transactions"}, new Callable<List<TransactionEntity>>() {
+      @Override
+      @NonNull
+      public List<TransactionEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
+          final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
+          final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
+          final int _cursorIndexOfAccountId = CursorUtil.getColumnIndexOrThrow(_cursor, "accountId");
+          final int _cursorIndexOfToAccountId = CursorUtil.getColumnIndexOrThrow(_cursor, "toAccountId");
+          final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
+          final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
+          final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
+          final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
+          final int _cursorIndexOfUpdatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "updatedAt");
+          final List<TransactionEntity> _result = new ArrayList<TransactionEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final TransactionEntity _item;
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpType;
+            _tmpType = _cursor.getString(_cursorIndexOfType);
+            final double _tmpAmount;
+            _tmpAmount = _cursor.getDouble(_cursorIndexOfAmount);
+            final String _tmpDate;
+            _tmpDate = _cursor.getString(_cursorIndexOfDate);
+            final String _tmpCategoryId;
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
+            final String _tmpAccountId;
+            _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
+            final String _tmpToAccountId;
+            if (_cursor.isNull(_cursorIndexOfToAccountId)) {
+              _tmpToAccountId = null;
+            } else {
+              _tmpToAccountId = _cursor.getString(_cursorIndexOfToAccountId);
+            }
+            final String _tmpNote;
+            _tmpNote = _cursor.getString(_cursorIndexOfNote);
+            final String _tmpDescription;
+            _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            final String _tmpAttachmentPath;
+            if (_cursor.isNull(_cursorIndexOfAttachmentPath)) {
+              _tmpAttachmentPath = null;
+            } else {
+              _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
+            }
+            final String _tmpSuperCategory;
+            if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
+              _tmpSuperCategory = null;
+            } else {
+              _tmpSuperCategory = _cursor.getString(_cursorIndexOfSuperCategory);
+            }
+            final boolean _tmpIsSettled;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfIsSettled);
+            _tmpIsSettled = _tmp != 0;
+            final String _tmpRecurringId;
+            if (_cursor.isNull(_cursorIndexOfRecurringId)) {
+              _tmpRecurringId = null;
+            } else {
+              _tmpRecurringId = _cursor.getString(_cursorIndexOfRecurringId);
+            }
+            final long _tmpCreatedAt;
+            _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
+            final long _tmpUpdatedAt;
+            _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<List<MonthlyTotal>> getMonthlyTotalsSince(final String sinceDate) {
+    final String _sql = "\n"
+            + "        SELECT substr(date, 1, 7) as month,\n"
+            + "               SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END) as totalExpense,\n"
+            + "               SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END) as totalIncome\n"
+            + "        FROM transactions \n"
+            + "        WHERE date >= ?\n"
+            + "        GROUP BY month\n"
+            + "        ORDER BY month ASC\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, sinceDate);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"transactions"}, new Callable<List<MonthlyTotal>>() {
+      @Override
+      @NonNull
+      public List<MonthlyTotal> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfMonth = 0;
+          final int _cursorIndexOfTotalExpense = 1;
+          final int _cursorIndexOfTotalIncome = 2;
+          final List<MonthlyTotal> _result = new ArrayList<MonthlyTotal>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final MonthlyTotal _item;
+            final String _tmpMonth;
+            _tmpMonth = _cursor.getString(_cursorIndexOfMonth);
+            final double _tmpTotalExpense;
+            _tmpTotalExpense = _cursor.getDouble(_cursorIndexOfTotalExpense);
+            final double _tmpTotalIncome;
+            _tmpTotalIncome = _cursor.getDouble(_cursorIndexOfTotalIncome);
+            _item = new MonthlyTotal(_tmpMonth,_tmpTotalExpense,_tmpTotalIncome);
             _result.add(_item);
           }
           return _result;

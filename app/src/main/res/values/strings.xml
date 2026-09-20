@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">Manifest</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_accounts">Accounts</string>
+    <string name="nav_more">More</string>
+    <string name="new_transaction">New Transaction</string>
+    <string name="edit_transaction">Edit Transaction</string>
+    <string name="save">Save</string>
+    <string name="update">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="transfer">Transfer</string>
+    <string name="amount">Amount</string>
+    <string name="date">Date</string>
+    <string name="category">Category</string>
+    <string name="account">Account</string>
+    <string name="note">Note</string>
+    <string name="description">Description</string>
+    <string name="net_worth">Net Worth</string>
+    <string name="total_income">Total Income</string>
+    <string name="total_expense">Total Expense</string>
+    <string name="monthly_overview">Monthly Overview</string>
+    <string name="no_data">No data found</string>
+    <string name="biometric_title">Biometric login for Manifest</string>
+    <string name="biometric_subtitle">Log in using your biometric credential</string>
 </resources>

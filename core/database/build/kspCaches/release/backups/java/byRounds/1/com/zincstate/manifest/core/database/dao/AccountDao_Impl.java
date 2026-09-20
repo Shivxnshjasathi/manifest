@@ -41,6 +41,8 @@ public final class AccountDao_Impl implements AccountDao {
 
   private final EntityDeletionOrUpdateAdapter<AccountEntity> __updateAdapterOfAccountEntity;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpdateBalance;
+
   private final SharedSQLiteStatement __preparedStmtOfDeleteById;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteAll;
@@ -95,6 +97,14 @@ public final class AccountDao_Impl implements AccountDao {
         statement.bindLong(5, entity.getSettlementDate());
         statement.bindLong(6, entity.getPaymentDate());
         statement.bindString(7, entity.getId());
+      }
+    };
+    this.__preparedStmtOfUpdateBalance = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE accounts SET balance = balance + ? WHERE id = ?";
+        return _query;
       }
     };
     this.__preparedStmtOfDeleteById = new SharedSQLiteStatement(__db) {
@@ -164,6 +174,34 @@ public final class AccountDao_Impl implements AccountDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateBalance(final String id, final double delta,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateBalance.acquire();
+        int _argIndex = 1;
+        _stmt.bindDouble(_argIndex, delta);
+        _argIndex = 2;
+        _stmt.bindString(_argIndex, id);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateBalance.release(_stmt);
         }
       }
     }, $completion);
