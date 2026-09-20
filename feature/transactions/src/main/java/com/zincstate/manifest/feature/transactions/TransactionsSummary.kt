@@ -3,6 +3,7 @@ package com.zincstate.manifest.feature.transactions
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +26,8 @@ import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 
 @Composable
 fun TransactionsSummary(
-    state: TransactionsUiState
+    state: TransactionsUiState,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
     val chartColors = listOf(
         Color(0xFF4CAF50), Color(0xFF2196F3), Color(0xFFFFC107), 
@@ -45,8 +47,10 @@ fun TransactionsSummary(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 120.dp, top = 16.dp)
+        contentPadding = PaddingValues(bottom = 120.dp)
     ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
         if (pieData.isNotEmpty()) {
             item {
                 Column(

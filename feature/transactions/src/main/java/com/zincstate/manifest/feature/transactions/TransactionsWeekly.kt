@@ -30,23 +30,28 @@ fun TransactionsWeekly(
     state: TransactionsUiState,
     onTransactionClick: (String) -> Unit,
     onTransactionLongClick: (String) -> Unit,
-    onDeleteTransaction: (String) -> Unit
+    onDeleteTransaction: (String) -> Unit,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
-    if (state.weeklySummaries.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = "No transactions this month",
-                style = MaterialTheme.typography.bodyLarge,
-                color = ManifestThemeTokens.colors.textSecondary
-            )
-        }
-        return
-    }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp)
+        contentPadding = PaddingValues(bottom = 120.dp)
     ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
+        if (state.weeklySummaries.isEmpty()) {
+            item {
+                Box(modifier = Modifier.fillParentMaxSize().padding(bottom = headerHeight), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No transactions this month",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = ManifestThemeTokens.colors.textSecondary
+                    )
+                }
+            }
+            return@LazyColumn
+        }
+
         items(state.weeklySummaries) { week ->
             WeeklyCard(
                 week = week,
@@ -133,8 +138,8 @@ private fun WeeklyCard(
                             confirmValueChange = {
                                 if (it == SwipeToDismissBoxValue.EndToStart) {
                                     onDeleteTransaction(item.id)
-                                    true
-                                } else false
+                                }
+                                false // Keep item until confirmed
                             }
                         )
 

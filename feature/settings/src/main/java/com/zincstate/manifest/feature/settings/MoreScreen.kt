@@ -125,6 +125,36 @@ fun MoreScreen(
                 }
             }
 
+            item {
+                SectionHeader("About & Support")
+                MenuContainer {
+                    MenuItem(Icons.Default.BugReport, "Found a bug / Review") {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                            data = android.net.Uri.parse("https://forms.gle/VHc9uwFwZ5J1gf2A6")
+                        }
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Handle error
+                        }
+                    }
+                    MenuDivider()
+                    MenuItem(Icons.Default.Info, "Privacy Policy") { onNavigate("privacy-policy") }
+                    MenuDivider()
+                    MenuItem(Icons.Default.Email, "Contact Developer") {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+                            data = android.net.Uri.parse("mailto:contact.zincstate@gmail.com")
+                            putExtra(android.content.Intent.EXTRA_SUBJECT, "Manifest App Feedback")
+                        }
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Handle case where no email app is installed
+                        }
+                    }
+                }
+            }
+
             // Danger Zone
             item {
                 Spacer(modifier = Modifier.height(48.dp))

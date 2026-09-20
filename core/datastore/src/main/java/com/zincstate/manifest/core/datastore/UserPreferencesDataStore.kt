@@ -27,6 +27,7 @@ class UserPreferencesDataStore @Inject constructor(
         val LAST_VIEWED_MONTH = stringPreferencesKey("last_viewed_month")
         val IS_DAILY_REMINDER_ENABLED = booleanPreferencesKey("is_daily_reminder_enabled")
         val REMINDER_TIME = stringPreferencesKey("reminder_time") // "HH:mm"
+        val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
     }
 
     val isDarkTheme: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -55,6 +56,10 @@ class UserPreferencesDataStore @Inject constructor(
 
     val reminderTime: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[PreferencesKeys.REMINDER_TIME] ?: "21:00"
+    }
+
+    val currencySymbol: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[PreferencesKeys.CURRENCY_SYMBOL] ?: "₹"
     }
 
     suspend fun setDarkTheme(isDark: Boolean) {
@@ -96,6 +101,12 @@ class UserPreferencesDataStore @Inject constructor(
     suspend fun setReminderTime(time: String) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.REMINDER_TIME] = time
+        }
+    }
+
+    suspend fun setCurrencySymbol(symbol: String) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.CURRENCY_SYMBOL] = symbol
         }
     }
 

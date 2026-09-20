@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +33,31 @@ fun GoalsScreen(
 ) {
     val goals by viewModel.goals.collectAsStateWithLifecycle()
     var showAddSheet by remember { mutableStateOf(false) }
+    var goalToDelete by remember { mutableStateOf<GoalEntity?>(null) }
+
+    if (goalToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { goalToDelete = null },
+            title = { Text("Delete Goal") },
+            text = { Text("Are you sure you want to delete this goal? The funds will not be returned to your accounts automatically.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        goalToDelete?.let { viewModel.deleteGoal(it) }
+                        goalToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { goalToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     if (showAddSheet) {
         AddGoalSheet(
@@ -99,7 +125,8 @@ fun GoalsScreen(
                     Box(modifier = Modifier.animateItem()) {
                         GoalCard(
                             goal = goal,
-                            onAddFunds = { amount -> viewModel.addFundsToGoal(goal.id, amount, null) }
+                            onAddFunds = { amount -> viewModel.addFundsToGoal(goal.id, amount, null) },
+                            onDelete = { goalToDelete = goal }
                         )
                     }
                 }
@@ -111,7 +138,8 @@ fun GoalsScreen(
 @Composable
 fun GoalCard(
     goal: GoalEntity,
-    onAddFunds: (Double) -> Unit
+    onAddFunds: (Double) -> Unit,
+    onDelete: () -> Unit
 ) {
     val progress = if (goal.targetAmount > 0) (goal.currentAmount / goal.targetAmount).coerceIn(0.0, 1.0).toFloat() else 0f
     
@@ -146,6 +174,18 @@ fun GoalCard(
                 )
                 .padding(16.dp)
         ) {
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.align(Alignment.TopEnd).size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Goal",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween

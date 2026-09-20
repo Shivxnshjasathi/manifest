@@ -38,7 +38,6 @@ import com.zincstate.manifest.core.ui.components.TransactionItem
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -49,7 +48,8 @@ fun TransactionsCalendar(
     onDateSelect: (String?) -> Unit,
     onTransactionClick: (String) -> Unit,
     onTransactionLongClick: (String) -> Unit,
-    onDeleteTransaction: (String) -> Unit
+    onDeleteTransaction: (String) -> Unit,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
     LaunchedEffect(Unit) {
         if (state.selectedCalendarDate == null) {
@@ -57,31 +57,42 @@ fun TransactionsCalendar(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 120.dp)
+    ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
         // Month Summary Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            MonthSummaryItem(label = "Income", amount = state.totalIncome, color = ManifestThemeTokens.colors.income)
-            MonthSummaryItem(label = "Expense", amount = state.totalExpense, color = ManifestThemeTokens.colors.expense)
-            MonthSummaryItem(label = "Net", amount = state.total, color = MaterialTheme.colorScheme.onSurface)
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                MonthSummaryItem(label = "Income", amount = state.totalIncome, color = ManifestThemeTokens.colors.income)
+                MonthSummaryItem(label = "Expense", amount = state.totalExpense, color = ManifestThemeTokens.colors.expense)
+                MonthSummaryItem(label = "Net", amount = state.total, color = MaterialTheme.colorScheme.onSurface)
+            }
         }
 
-        CalendarGrid(
-            currentMonthStr = state.currentMonth,
-            dailyIncomeRaw = state.dailyIncomeRaw,
-            dailyExpenseRaw = state.dailyExpenseRaw,
-            selectedDate = state.selectedCalendarDate,
-            onDateSelect = onDateSelect
-        )
+        item {
+            CalendarGrid(
+                currentMonthStr = state.currentMonth,
+                dailyIncomeRaw = state.dailyIncomeRaw,
+                dailyExpenseRaw = state.dailyExpenseRaw,
+                selectedDate = state.selectedCalendarDate,
+                onDateSelect = onDateSelect
+            )
+        }
         
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         
         // Filter transactions for the selected date, or show all if none selected
         val transactionsToShow = if (state.selectedCalendarDate != null) {
@@ -92,103 +103,102 @@ fun TransactionsCalendar(
 
         if (state.selectedCalendarDate != null) {
             if (transactionsToShow.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(top = 32.dp),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    Text(
-                        text = "No transactions on this date",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = ManifestThemeTokens.colors.textSecondary
-                    )
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        Text(
+                            text = "No transactions on this date",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = ManifestThemeTokens.colors.textSecondary
+                        )
+                    }
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 120.dp)
-                ) {
-                    val formattedDate = try {
-                        val date = LocalDate.parse(state.selectedCalendarDate)
-                        val day = date.dayOfMonth
-                        val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase()
-                        "$day $dayOfWeek"
-                    } catch (e: Exception) {
-                        state.selectedCalendarDate
-                    }
-                    
-                    item {
-                        DateHeader(
-                            dateText = formattedDate ?: "",
-                            totalText = state.dailyTotals[state.selectedCalendarDate] ?: "",
-                            isAmountVisible = state.isAmountVisible
-                        )
-                    }
-                    
-                    items(transactionsToShow, key = { it.id }) { item ->
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
-                                if (it == SwipeToDismissBoxValue.EndToStart) {
-                                    onDeleteTransaction(item.id)
-                                    true
-                                } else false
-                            }
-                        )
+                val formattedDate = try {
+                    val date = LocalDate.parse(state.selectedCalendarDate)
+                    val day = date.dayOfMonth
+                    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase()
+                    "$day $dayOfWeek"
+                } catch (e: Exception) {
+                    state.selectedCalendarDate
+                }
 
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            enableDismissFromStartToEnd = false,
-                            backgroundContent = {
-                                val color = when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
-                                    else -> Color.Transparent
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(color),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Delete",
-                                            tint = Color.White,
-                                            modifier = Modifier.padding(end = 16.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier.animateItem()
-                        ) {
-                            TransactionItem(
-                                categoryIcon = item.categoryIcon,
-                                categoryName = item.categoryName,
-                                note = item.note,
-                                accountName = item.accountName,
-                                amount = item.amount,
-                                isIncome = item.isIncome,
-                                isAmountVisible = state.isAmountVisible,
-                                isSelected = state.selectedTransactionIds.contains(item.id),
-                                hasAttachment = item.hasAttachment,
-                                onClick = { onTransactionClick(item.id) },
-                                onLongClick = { onTransactionLongClick(item.id) }
-                            )
+                item {
+                    DateHeader(
+                        dateText = formattedDate ?: "",
+                        totalText = state.dailyTotals[state.selectedCalendarDate] ?: "",
+                        isAmountVisible = state.isAmountVisible
+                    )
+                }
+
+                items(transactionsToShow, key = { it.id }) { item ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            if (it == SwipeToDismissBoxValue.EndToStart) {
+                                onDeleteTransaction(item.id)
+                            }
+                            false // Always return false to keep the item in the list until confirmed/deleted
                         }
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = {
+                            val color = when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
+                                else -> Color.Transparent
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(color),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color.White,
+                                        modifier = Modifier.padding(end = 16.dp)
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier.animateItem()
+                    ) {
+                        TransactionItem(
+                            categoryIcon = item.categoryIcon,
+                            categoryName = item.categoryName,
+                            note = item.note,
+                            accountName = item.accountName,
+                            amount = item.amount,
+                            isIncome = item.isIncome,
+                            isAmountVisible = state.isAmountVisible,
+                            isSelected = state.selectedTransactionIds.contains(item.id),
+                            hasAttachment = item.hasAttachment,
+                            onClick = { onTransactionClick(item.id) },
+                            onLongClick = { onTransactionLongClick(item.id) }
+                        )
                     }
                 }
             }
         } else {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(top = 32.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Text(
-                    text = "Select a date to view transactions",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = ManifestThemeTokens.colors.textSecondary
-                )
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        text = "Select a date to view transactions",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ManifestThemeTokens.colors.textSecondary
+                    )
+                }
             }
         }
     }

@@ -3,7 +3,8 @@ package com.zincstate.manifest.feature.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -15,7 +16,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PrivacySecurityScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit
 ) {
     var biometricEnabled by remember { mutableStateOf(false) }
     var hideAmounts by remember { mutableStateOf(false) }
@@ -34,7 +36,7 @@ fun PrivacySecurityScreen(
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(
-                    Icons.Default.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.onBackground
                 )
@@ -86,6 +88,29 @@ fun PrivacySecurityScreen(
                     }
                 }
                 Switch(checked = hideAmounts, onCheckedChange = { hideAmounts = it })
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Privacy Policy Link
+            Surface(
+                onClick = onPrivacyPolicyClick,
+                color = androidx.compose.ui.graphics.Color.Transparent,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Description, contentDescription = null)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text("Privacy Policy", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                        Text("Read our legal and privacy terms", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
         }
     }

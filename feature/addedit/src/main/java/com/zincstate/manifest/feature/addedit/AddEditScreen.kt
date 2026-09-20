@@ -48,6 +48,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import android.provider.ContactsContract
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,6 +64,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -107,6 +110,63 @@ fun AddEditScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
     var showDatePicker by remember { mutableStateOf(false) }
+    var showCurrencySheet by remember { mutableStateOf(false) }
+
+    val currencies = remember {
+        listOf(
+            "INR" to "₹", "USD" to "$", "EUR" to "€", "GBP" to "£", "JPY" to "¥",
+            "CNY" to "元", "KRW" to "₩", "RUB" to "₽", "BRL" to "R$", "AUD" to "A$",
+            "CAD" to "C$", "CHF" to "Fr.", "SGD" to "S$", "AED" to "د.إ", "SAR" to "ر.س",
+            "THB" to "฿", "VND" to "₫", "IDR" to "Rp", "MYR" to "RM", "PHP" to "₱",
+            "NGN" to "₦", "ZAR" to "R", "TRY" to "₺", "ILS" to "₪"
+        )
+    }
+
+    if (showCurrencySheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showCurrencySheet = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            dragHandle = { BottomSheetDefaults.DragHandle() }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp, start = 24.dp, end = 24.dp)
+            ) {
+                Text(
+                    "Select Currency",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    currencies.forEach { (code, symbol) ->
+                        FilterChip(
+                            selected = state.currencySymbol == symbol,
+                            onClick = {
+                                viewModel.setCurrencySymbol(symbol)
+                                showCurrencySheet = false
+                            },
+                            label = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(symbol, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(code, style = MaterialTheme.typography.labelSmall)
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -314,65 +374,61 @@ fun AddEditScreen(
                 }
             }
 
-            // Amount (Modern Look)
+            // Amount (Centered & Large)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                    .padding(16.dp),
+                    .padding(vertical = 32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        stringResource(R.string.amount),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = ManifestThemeTokens.colors.textTertiary
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Surface(
+                        onClick = { showCurrencySheet = true },
+                        color = Color.Transparent,
+                        shape = CircleShape
                     ) {
                         Text(
-                            "₹",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        androidx.compose.foundation.text.BasicTextField(
-                            value = state.amount,
-                            onValueChange = { viewModel.setAmount(it) },
-                            modifier = Modifier.widthIn(min = 80.dp),
-                            textStyle = MaterialTheme.typography.displaySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 36.sp,
-                                textAlign = TextAlign.Center
-                            ),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
-                            decorationBox = { innerTextField ->
-                                Box(contentAlignment = Alignment.Center) {
-                                    if (state.amount.isEmpty()) {
-                                        Text(
-                                            "0.00",
-                                            style = MaterialTheme.typography.displaySmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = ManifestThemeTokens.colors.textTertiary.copy(alpha = 0.3f),
-                                            fontSize = 36.sp,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                    innerTextField()
-                                }
-                            }
+                            state.currencySymbol,
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.Light,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = state.amount,
+                        onValueChange = { viewModel.setAmount(it) },
+                        modifier = Modifier.widthIn(min = 120.dp),
+                        textStyle = MaterialTheme.typography.displayLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.Center) {
+                                if (state.amount.isEmpty()) {
+                                    Text(
+                                        "0.00",
+                                        style = MaterialTheme.typography.displayLarge.copy(textAlign = TextAlign.Center),
+                                        fontWeight = FontWeight.Black,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Date Picker (Simplified)
             Box(

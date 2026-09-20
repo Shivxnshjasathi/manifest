@@ -25,6 +25,7 @@ import com.zincstate.manifest.feature.budgets.BudgetsScreen
 import com.zincstate.manifest.feature.goals.GoalsScreen
 import com.zincstate.manifest.feature.settings.MoreScreen
 import com.zincstate.manifest.feature.settings.PrivacySecurityScreen
+import com.zincstate.manifest.feature.settings.PrivacyPolicyScreen
 import com.zincstate.manifest.feature.settings.NotificationsScreen
 import com.zincstate.manifest.feature.stats.StatsScreen
 import com.zincstate.manifest.feature.subscriptions.SubscriptionsScreen
@@ -45,6 +46,7 @@ object Destinations {
     const val GOALS = "goals"
     const val SUBSCRIPTIONS = "subscriptions"
     const val SMS_IMPORT = "sms-import"
+    const val PRIVACY_POLICY = "privacy-policy"
 
     fun addEditRoute(transactionId: String? = null): String {
         return if (transactionId != null) "add_edit?transactionId=$transactionId" else "add_edit"
@@ -206,7 +208,13 @@ fun ManifestNavGraph(
                     SubscriptionsScreen(onBackClick = { navController.popBackStack() })
                 }
                 composable("privacy-security") {
-                    PrivacySecurityScreen(onBackClick = { navController.popBackStack() })
+                    PrivacySecurityScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onPrivacyPolicyClick = { navController.navigate(Destinations.PRIVACY_POLICY) }
+                    )
+                }
+                composable(Destinations.PRIVACY_POLICY) {
+                    PrivacyPolicyScreen(onBackClick = { navController.popBackStack() })
                 }
                 composable("notifications") {
                     NotificationsScreen(onBackClick = { navController.popBackStack() })

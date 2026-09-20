@@ -25,6 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 
 /**
@@ -48,60 +50,56 @@ fun TransactionTopBar(
     onNextMonth: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .animateContentSize()
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        IconButton(onClick = onSearchClick) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.weight(1f)
         ) {
-            IconButton(onClick = onSearchClick) {
+            IconButton(onClick = onPreviousMonth, modifier = Modifier.size(32.dp)) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    imageVector = Icons.Default.ChevronLeft,
+                    contentDescription = "Previous month",
+                    tint = ManifestThemeTokens.colors.textSecondary
                 )
             }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(onClick = onPreviousMonth, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronLeft,
-                        contentDescription = "Previous month",
-                        tint = ManifestThemeTokens.colors.textSecondary
-                    )
-                }
-                Text(
-                    text = monthYearText,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.width(140.dp)
-                )
-                IconButton(onClick = onNextMonth, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Next month",
-                        tint = ManifestThemeTokens.colors.textSecondary
-                    )
-                }
-            }
-
-            IconButton(onClick = onToggleVisibility) {
+            Text(
+                text = monthYearText,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            IconButton(onClick = onNextMonth, modifier = Modifier.size(32.dp)) {
                 Icon(
-                    imageVector = if (isAmountVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = "Toggle visibility",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Next month",
+                    tint = ManifestThemeTokens.colors.textSecondary
                 )
             }
+        }
+
+        IconButton(onClick = onToggleVisibility) {
+            Icon(
+                imageVector = if (isAmountVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                contentDescription = "Toggle visibility",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
         }
     }
 }
@@ -157,33 +155,32 @@ fun StatCard(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    Card(
+    Surface(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        border = BorderStroke(1.dp, ManifestThemeTokens.colors.border.copy(alpha = 0.5f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 8.dp),
+                .padding(vertical = 14.dp, horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = label,
+                text = label.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
-                color = ManifestThemeTokens.colors.textSecondary,
-                fontWeight = FontWeight.Bold
+                color = ManifestThemeTokens.colors.textTertiary,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = if (isAmountVisible) amount else "••••",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
-                color = color
+                color = color,
+                maxLines = 1
             )
         }
     }

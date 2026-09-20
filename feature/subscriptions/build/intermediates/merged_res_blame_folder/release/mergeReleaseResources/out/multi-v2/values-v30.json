@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.zincstate.manifest.feature.subscriptions-release-69:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/8200026f564ca5862beac3e631f28e58/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.zincstate.manifest.feature.subscriptions-mergeReleaseResources-67:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/8200026f564ca5862beac3e631f28e58/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}

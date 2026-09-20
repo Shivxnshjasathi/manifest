@@ -89,14 +89,16 @@ data class TransactionsUiState(
     val filterMaxAmount: Double? = null,
     val filterDateRange: Pair<LocalDate?, LocalDate?>? = null,
     val accounts: List<AccountEntity> = emptyList(),
-    val categories: List<CategoryEntity> = emptyList()
+    val categories: List<CategoryEntity> = emptyList(),
+    val currencySymbol: String = "₹"
 )
 
 private data class TransactionsDbData(
     val transactions: List<TransactionEntity>,
     val categories: List<CategoryEntity>,
     val accounts: List<AccountEntity>,
-    val splits: List<TransactionSplitEntity>
+    val splits: List<TransactionSplitEntity>,
+    val currencySymbol: String
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -127,7 +129,8 @@ class TransactionsViewModel @Inject constructor(
         _selectedTransactionIds, _selectedCalendarDate, _filterType,
         _filterAccountIds, _filterCategoryIds, _filterMinAmount,
         _filterMaxAmount, _filterDateRange, preferencesDataStore.isAmountVisible,
-        categoryDao.getAllCategories(), accountDao.getAllAccounts()
+        categoryDao.getAllCategories(), accountDao.getAllAccounts(),
+        preferencesDataStore.currencySymbol
     ) { args ->
         @Suppress("UNCHECKED_CAST")
         TransactionsUiState(
@@ -147,23 +150,25 @@ class TransactionsViewModel @Inject constructor(
             filterDateRange = args[11] as Pair<LocalDate?, LocalDate?>?,
             isAmountVisible = args[12] as Boolean,
             categories = args[13] as List<CategoryEntity>,
-            accounts = args[14] as List<AccountEntity>
+            accounts = args[14] as List<AccountEntity>,
+            currencySymbol = args[15] as String
         )
     }.combine(
         _currentMonth.flatMapLatest { month ->
             combine(
                 transactionDao.getTransactionsByMonth(month),
                 categoryDao.getAllCategories(),
-                accountDao.getAllAccounts()
-            ) { txs, cats, accs ->
-                txs to (cats to accs)
+                accountDao.getAllAccounts(),
+                preferencesDataStore.currencySymbol
+            ) { txs, cats, accs, symbol ->
+                txs to (Triple(cats, accs, symbol))
             }.flatMapLatest { (txs, dbData) ->
                 val txIds = txs.map { it.id }
                 if (txIds.isEmpty()) {
-                    flowOf(TransactionsDbData(txs, dbData.first, dbData.second, emptyList()))
+                    flowOf(TransactionsDbData(txs, dbData.first, dbData.second, emptyList(), dbData.third))
                 } else {
                     splitDao.getSplitsForTransactions(txIds).map { splits ->
-                        TransactionsDbData(txs, dbData.first, dbData.second, splits)
+                        TransactionsDbData(txs, dbData.first, dbData.second, splits, dbData.third)
                     }
                 }
             }
@@ -173,6 +178,7 @@ class TransactionsViewModel @Inject constructor(
         val categoryMap = dbData.categories.associateBy { it.id }
         val accountMap = dbData.accounts.associateBy { it.id }
         val splitMap = dbData.splits.groupBy { it.transactionId }
+        val currencySymbol = dbData.currencySymbol
 
         val filteredTxs = txs.filter { tx ->
             (state.filterType == null || tx.type == state.filterType) &&
@@ -186,18 +192,18 @@ class TransactionsViewModel @Inject constructor(
             ))
         }
 
-        val uiItems = filteredTxs.map { mapToUiItem(it, categoryMap, accountMap) }
+        val uiItems = filteredTxs.map { mapToUiItem(it, categoryMap, accountMap, currencySymbol) }
         val grouped = uiItems.groupBy { it.date }
         
         // Calculate daily totals (net share)
         val dailyIncomeRaw = grouped.mapValues { (_, items) ->
             items.filter { it.type == "INCOME" }.sumOf { item ->
-                item.amount.replace("₹", "").replace(",", "").replace("+", "").toDoubleOrNull() ?: 0.0
+                item.amount.replace(currencySymbol, "").replace(",", "").replace("+", "").replace("-", "").toDoubleOrNull() ?: 0.0
             }
         }
         val dailyExpenseRaw = grouped.mapValues { (_, items) ->
             items.filter { it.type == "EXPENSE" }.sumOf { item ->
-                val raw = item.amount.replace("₹", "").replace(",", "").replace("-", "").toDoubleOrNull() ?: 0.0
+                val raw = item.amount.replace(currencySymbol, "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
                 val txSplits = splitMap[item.id] ?: emptyList()
                 raw - txSplits.sumOf { it.amount }
             }
@@ -229,10 +235,10 @@ class TransactionsViewModel @Inject constructor(
             }
             
             val income = weekTxs.filter { it.type == "INCOME" }.sumOf { 
-                it.amount.replace("₹", "").replace(",", "").replace("+", "").replace("-", "").toDoubleOrNull() ?: 0.0 
+                it.amount.replace(currencySymbol, "").replace(",", "").replace("+", "").replace("-", "").toDoubleOrNull() ?: 0.0 
             }
             val expense = weekTxs.filter { it.type == "EXPENSE" }.sumOf { 
-                val raw = it.amount.replace("₹", "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
+                val raw = it.amount.replace(currencySymbol, "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
                 val txSplits = splitMap[it.id] ?: emptyList()
                 raw - txSplits.sumOf { s -> s.amount }
             }
@@ -252,7 +258,7 @@ class TransactionsViewModel @Inject constructor(
         // Monthly Category Breakdown
         val categoryTotals = uiItems.groupBy { it.categoryName }.map { (catName, items) ->
             val totalRaw = items.sumOf { item ->
-                val raw = item.amount.replace("₹", "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
+                val raw = item.amount.replace(currencySymbol, "").replace(",", "").replace("-", "").replace("+", "").toDoubleOrNull() ?: 0.0
                 if (item.isIncome) raw else {
                     val txSplits = splitMap[item.id] ?: emptyList()
                     -(raw - txSplits.sumOf { it.amount })
@@ -261,7 +267,7 @@ class TransactionsViewModel @Inject constructor(
             CategoryTotalUiItem(
                 categoryName = catName,
                 categoryIcon = items.first().categoryIcon,
-                totalAmount = CurrencyFormatter.formatWithSign(Math.abs(totalRaw), totalRaw >= 0),
+                totalAmount = CurrencyFormatter.formatWithSign(Math.abs(totalRaw), totalRaw >= 0, currencySymbol),
                 rawAmount = totalRaw,
                 isIncome = totalRaw >= 0
             )
@@ -274,13 +280,13 @@ class TransactionsViewModel @Inject constructor(
 
         state.copy(
             groupedTransactions = grouped,
-            dailyTotals = dailyTotalsRaw.mapValues { CurrencyFormatter.format(it.value) },
+            dailyTotals = dailyTotalsRaw.mapValues { CurrencyFormatter.format(it.value, currencySymbol = currencySymbol) },
             dailyTotalsRaw = dailyTotalsRaw,
             dailyIncomeRaw = dailyIncomeRaw,
             dailyExpenseRaw = dailyExpenseRaw,
-            totalIncome = CurrencyFormatter.format(totalIncome),
-            totalExpense = CurrencyFormatter.format(totalExpense),
-            total = CurrencyFormatter.format(totalIncome - totalExpense),
+            totalIncome = CurrencyFormatter.format(totalIncome, currencySymbol = currencySymbol),
+            totalExpense = CurrencyFormatter.format(totalExpense, currencySymbol = currencySymbol),
+            total = CurrencyFormatter.format(totalIncome - totalExpense, currencySymbol = currencySymbol),
             weeklySummaries = weeklySummaries,
             isLoading = false,
             transactionDatesInMonth = filteredTxs.map { DateUtils.getDayOfMonth(it.date) }.toSet(),
@@ -288,8 +294,8 @@ class TransactionsViewModel @Inject constructor(
             descriptionGroupedTransactions = uiItems.groupBy { it.note.ifBlank { "No Description" } }
         )
     }.combine(
-        combine(_isSearchActive, _searchQuery) { active, query -> active to query }
-            .flatMapLatest { (active, query) ->
+        combine(_isSearchActive, _searchQuery, preferencesDataStore.currencySymbol) { active, query, symbol -> Triple(active, query, symbol) }
+            .flatMapLatest { (active, query, symbol) ->
                 if (active && query.isNotBlank()) {
                     combine(
                         transactionDao.searchTransactions(query),
@@ -298,7 +304,7 @@ class TransactionsViewModel @Inject constructor(
                     ) { txs, cats, accs ->
                         val catMap = cats.associateBy { it.id }
                         val accMap = accs.associateBy { it.id }
-                        txs.map { mapToUiItem(it, catMap, accMap) }
+                        txs.map { mapToUiItem(it, catMap, accMap, symbol) }
                     }
                 } else flowOf(emptyList())
             }
@@ -394,7 +400,8 @@ class TransactionsViewModel @Inject constructor(
     private fun mapToUiItem(
         tx: TransactionEntity,
         categoryMap: Map<String, CategoryEntity>,
-        accountMap: Map<String, AccountEntity>
+        accountMap: Map<String, AccountEntity>,
+        currencySymbol: String
     ): TransactionUiItem {
         val category = tx.categoryId?.let { categoryMap[it] }
         val account = accountMap[tx.accountId]
@@ -407,7 +414,7 @@ class TransactionsViewModel @Inject constructor(
             categoryName = if (isTransfer) "Transfer" else category?.name ?: "Unknown",
             note = tx.note,
             accountName = account?.name ?: "Unknown",
-            amount = if (isTransfer) CurrencyFormatter.format(tx.amount) else CurrencyFormatter.formatWithSign(tx.amount, isIncome),
+            amount = if (isTransfer) CurrencyFormatter.format(tx.amount, currencySymbol = currencySymbol) else CurrencyFormatter.formatWithSign(tx.amount, isIncome, currencySymbol),
             isIncome = isIncome,
             date = tx.date,
             type = tx.type,

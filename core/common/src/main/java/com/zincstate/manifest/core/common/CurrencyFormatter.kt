@@ -6,50 +6,43 @@ import java.util.Locale
 import kotlin.math.abs
 
 /**
- * Formats amounts using the Indian numbering system: ₹1,23,456.00
- * 
- * Grouping rules:
- * - Numbers < 1,000: plain (e.g., ₹999)
- * - 1,000–99,999: X,XXX (e.g., ₹12,345)
- * - ≥ 1,00,000: X,XX,XXX (e.g., ₹1,23,456)
+ * Formats amounts using the Indian numbering system or standard system based on preference.
  */
 object CurrencyFormatter {
 
-    private val symbols = DecimalFormatSymbols(Locale("en", "IN")).apply {
-        currencySymbol = "₹"
-        groupingSeparator = ','
-        decimalSeparator = '.'
-    }
-
     /**
-     * Format amount with Indian numbering system.
+     * Format amount with optional custom currency symbol.
      * @param amount The amount to format
      * @param showDecimals Whether to show decimal places
-     * @param showCurrencySymbol Whether to prefix with ₹
-     * @return Formatted string like "₹1,23,456" or "₹1,23,456.00"
+     * @param currencySymbol Custom currency symbol (defaults to ₹)
+     * @return Formatted string
      */
     fun format(
         amount: Double,
         showDecimals: Boolean = false,
-        showCurrencySymbol: Boolean = true
+        currencySymbol: String = "₹"
     ): String {
         val isNegative = amount < 0
         val absAmount = abs(amount)
-        val prefix = if (showCurrencySymbol) "₹" else ""
         val negPrefix = if (isNegative) "-" else ""
 
-        val formatted = formatIndian(absAmount, showDecimals)
-        return "$negPrefix$prefix$formatted"
+        val formatted = if (currencySymbol == "₹") formatIndian(absAmount, showDecimals) else formatStandard(absAmount, showDecimals)
+        return "$negPrefix$currencySymbol$formatted"
     }
 
     /**
      * Format with sign for display in transaction lists.
-     * Income: +₹X,XXX, Expense: -₹X,XXX
      */
-    fun formatWithSign(amount: Double, isIncome: Boolean): String {
+    fun formatWithSign(amount: Double, isIncome: Boolean, currencySymbol: String = "₹"): String {
         val sign = if (isIncome) "+" else "-"
         val absAmount = abs(amount)
-        return "$sign₹${formatIndian(absAmount, false)}"
+        val formatted = if (currencySymbol == "₹") formatIndian(absAmount, false) else formatStandard(absAmount, false)
+        return "$sign$currencySymbol$formatted"
+    }
+
+    private fun formatStandard(amount: Double, showDecimals: Boolean): String {
+        val pattern = if (showDecimals) "#,##0.00" else "#,##0"
+        return DecimalFormat(pattern, DecimalFormatSymbols(Locale.US)).format(amount)
     }
 
     private fun formatIndian(amount: Double, showDecimals: Boolean): String {
@@ -58,11 +51,7 @@ object CurrencyFormatter {
 
         val intPart = when {
             longAmount < 1_000 -> longAmount.toString()
-            longAmount < 1_00_000 -> {
-                val thousands = longAmount / 1_000
-                val remainder = longAmount % 1_000
-                "$thousands,${"%03d".format(remainder)}"
-            }
+            longAmount < 1_00_00_000 -> formatLakhs(longAmount) // Use Indian grouping for anything above 1000 in INR
             else -> formatLakhs(longAmount)
         }
 
@@ -75,45 +64,46 @@ object CurrencyFormatter {
     }
 
     private fun formatLakhs(amount: Long): String {
-        val result = StringBuilder()
         val str = amount.toString()
         val len = str.length
+        if (len <= 3) return str
 
-        // Last 3 digits
-        result.insert(0, str.substring(len - 3))
-
-        // Remaining digits in groups of 2
-        var i = len - 3
+        val lastThree = str.substring(len - 3)
+        val remaining = str.substring(0, len - 3)
+        
+        val result = StringBuilder()
+        var i = remaining.length
         while (i > 0) {
             val start = maxOf(0, i - 2)
-            result.insert(0, ",")
-            result.insert(0, str.substring(start, i))
+            if (result.isNotEmpty()) result.insert(0, ",")
+            result.insert(0, remaining.substring(start, i))
             i = start
         }
-
-        return result.toString()
+        
+        return "$result,$lastThree"
     }
 
     /**
-     * Compact format for large numbers: ₹1.2L, ₹3.5Cr
+     * Compact format for large numbers.
      */
-    fun formatCompact(amount: Double): String {
+    fun formatCompact(amount: Double, currencySymbol: String = "₹"): String {
         val absAmount = abs(amount)
-        val prefix = if (amount < 0) "-₹" else "₹"
-        return when {
-            absAmount >= 1_00_00_000 -> {
-                val crores = absAmount / 1_00_00_000
-                "$prefix${DecimalFormat("#.#").format(crores)}Cr"
+        val prefix = if (amount < 0) "-$currencySymbol" else currencySymbol
+        
+        if (currencySymbol == "₹") {
+            return when {
+                absAmount >= 1_00_00_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_00_00_000)}Cr"
+                absAmount >= 1_00_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_00_000)}L"
+                absAmount >= 1_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_000)}K"
+                else -> "$prefix${absAmount.toInt()}"
             }
-            absAmount >= 1_00_000 -> {
-                val lakhs = absAmount / 1_00_000
-                "$prefix${DecimalFormat("#.#").format(lakhs)}L"
+        } else {
+            return when {
+                absAmount >= 1_000_000_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_000_000_000)}B"
+                absAmount >= 1_000_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_000_000)}M"
+                absAmount >= 1_000 -> "$prefix${DecimalFormat("#.#").format(absAmount / 1_000)}K"
+                else -> "$prefix${absAmount.toInt()}"
             }
-            absAmount >= 1_000 -> {
-                val thousands = absAmount / 1_000
-                "$prefix${DecimalFormat("#.#").format(thousands)}K"
-            }
-            else -> "$prefix${absAmount.toInt()}"
         }
     }
 }

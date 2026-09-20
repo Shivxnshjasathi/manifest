@@ -9,8 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +26,31 @@ fun SubscriptionsScreen(
     viewModel: SubscriptionsViewModel = hiltViewModel()
 ) {
     val subscriptions by viewModel.subscriptions.collectAsStateWithLifecycle()
+    var subscriptionToDelete by remember { mutableStateOf<String?>(null) }
+
+    if (subscriptionToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { subscriptionToDelete = null },
+            title = { Text("Delete Subscription") },
+            text = { Text("Are you sure you want to stop this recurring transaction? Past transactions will remain.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        subscriptionToDelete?.let { viewModel.deleteSubscription(it) }
+                        subscriptionToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { subscriptionToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -100,7 +124,7 @@ fun SubscriptionsScreen(
                     Box(modifier = Modifier.animateItem()) {
                         SubscriptionCard(
                             subscription = sub,
-                            onDelete = { viewModel.deleteSubscription(sub.id) }
+                            onDelete = { subscriptionToDelete = sub.id }
                         )
                     }
                 }

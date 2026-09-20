@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,23 +29,28 @@ import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 
 @Composable
 fun TransactionsMonthly(
-    state: TransactionsUiState
+    state: TransactionsUiState,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
-    if (state.monthlyCategoryTotals.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = "No transactions this month",
-                style = MaterialTheme.typography.bodyLarge,
-                color = ManifestThemeTokens.colors.textSecondary
-            )
-        }
-        return
-    }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 120.dp, top = 8.dp)
+        contentPadding = PaddingValues(bottom = 120.dp)
     ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
+        if (state.monthlyCategoryTotals.isEmpty()) {
+            item {
+                Box(modifier = Modifier.fillParentMaxSize().padding(bottom = headerHeight), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No transactions this month",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = ManifestThemeTokens.colors.textSecondary
+                    )
+                }
+            }
+            return@LazyColumn
+        }
+
         val incomeTotals = state.monthlyCategoryTotals.filter { it.isIncome }
         val expenseTotals = state.monthlyCategoryTotals.filter { !it.isIncome }
 

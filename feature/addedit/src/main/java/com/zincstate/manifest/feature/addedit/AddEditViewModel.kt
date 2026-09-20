@@ -17,6 +17,7 @@ import com.zincstate.manifest.core.database.entity.CategoryEntity
 import com.zincstate.manifest.core.database.entity.ContactEntity
 import com.zincstate.manifest.core.database.entity.TransactionEntity
 import com.zincstate.manifest.core.database.entity.TransactionSplitEntity
+import com.zincstate.manifest.core.datastore.UserPreferencesDataStore
 import com.zincstate.manifest.core.model.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,7 @@ data class AddEditUiState(
     val selectedContactIds: Set<String> = emptySet(),
     val isSplitEnabled: Boolean = false,
     val isValid: Boolean = false,
+    val currencySymbol: String = "₹",
     val attachmentUri: Uri? = null,
     val attachmentPath: String? = null
 )
@@ -63,6 +65,7 @@ class AddEditViewModel @Inject constructor(
     private val accountDao: AccountDao,
     private val contactDao: ContactDao,
     private val splitDao: TransactionSplitDao,
+    private val preferencesDataStore: UserPreferencesDataStore,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -96,7 +99,8 @@ class AddEditViewModel @Inject constructor(
         _selectedContactIds,
         _isSplitEnabled,
         _attachmentUri,
-        _attachmentPath
+        _attachmentPath,
+        preferencesDataStore.currencySymbol
     ) { args ->
         @Suppress("UNCHECKED_CAST")
         val type = args[0] as TransactionType
@@ -106,6 +110,7 @@ class AddEditViewModel @Inject constructor(
         val toAccId = args[5] as String
         val note = args[6] as String
         val selectedContactIds = args[16] as Set<String>
+        val currencySymbol = args[20] as String
 
         val amountVal = amount.toDoubleOrNull() ?: 0.0
         val isAmountValid = amountVal > 0
@@ -138,6 +143,7 @@ class AddEditViewModel @Inject constructor(
             selectedContactIds = selectedContactIds,
             isSplitEnabled = args[17] as Boolean,
             isValid = isAmountValid && isNoteValid && isCategoryValid && isAccountValid && isTransferValid,
+            currencySymbol = currencySymbol,
             attachmentUri = args[18] as Uri?,
             attachmentPath = args[19] as String?
         )
@@ -185,6 +191,12 @@ class AddEditViewModel @Inject constructor(
     }
     fun setDescription(description: String) { _description.value = description }
     fun toggleMoreDetails() { _showMoreDetails.value = !_showMoreDetails.value }
+
+    fun setCurrencySymbol(symbol: String) {
+        viewModelScope.launch {
+            preferencesDataStore.setCurrencySymbol(symbol)
+        }
+    }
 
     fun setAttachmentUri(uri: Uri?) {
         _attachmentUri.value = uri

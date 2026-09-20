@@ -36,6 +36,31 @@ fun BudgetsScreen(
     val budgets by viewModel.budgets.collectAsStateWithLifecycle()
     
     var showAddSheet by remember { mutableStateOf(false) }
+    var budgetToDelete by remember { mutableStateOf<String?>(null) }
+
+    if (budgetToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { budgetToDelete = null },
+            title = { Text("Delete Budget") },
+            text = { Text("Are you sure you want to delete this budget?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        budgetToDelete?.let { viewModel.deleteBudget(it) }
+                        budgetToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { budgetToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     if (showAddSheet) {
         AddBudgetSheet(
@@ -169,7 +194,7 @@ fun BudgetsScreen(
                     Box(modifier = Modifier.animateItem()) {
                         BudgetCard(
                             budget = budget,
-                            onDelete = { viewModel.deleteBudget(budget.id) }
+                            onDelete = { budgetToDelete = budget.id }
                         )
                     }
                 }

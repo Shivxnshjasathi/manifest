@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,13 +15,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,17 +36,8 @@ import com.zincstate.manifest.core.ui.components.*
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import kotlin.math.abs
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsScreen(
     onTransactionClick: (String) -> Unit,
@@ -55,24 +45,63 @@ fun TransactionsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showFilterSheet by remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState(initialPage = state.selectedTab, pageCount = { 5 })
+    var transactionToDelete by remember { mutableStateOf<String?>(null) }
+    var showBulkDeleteConfirmation by remember { mutableStateOf(false) }
+
+    val pagerState = rememberPagerState(initialPage = state.selectedTab, pageCount = { 4 })
     val coroutineScope = rememberCoroutineScope()
 
-    // Nested Scroll logic to scroll the header away
-    val headerHeight = 220.dp
-    val headerHeightPx = with(LocalDensity.current) { headerHeight.toPx() }
-    val headerOffsetHeightPx = remember { mutableStateOf(0f) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                val newOffset = headerOffsetHeightPx.value + delta
-                headerOffsetHeightPx.value = newOffset.coerceIn(-headerHeightPx, 0f)
-                return Offset.Zero
+    // Bulk Deletion Confirmation
+    if (showBulkDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showBulkDeleteConfirmation = false },
+            title = { Text("Delete Transactions") },
+            text = { Text("Are you sure you want to delete ${state.selectedTransactionIds.size} transactions? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteSelectedTransactions()
+                        showBulkDeleteConfirmation = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete All")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBulkDeleteConfirmation = false }) {
+                    Text("Cancel")
+                }
             }
-        }
+        )
     }
+
+    // Deletion Confirmation Dialog
+    if (transactionToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { transactionToDelete = null },
+            title = { Text("Delete Transaction") },
+            text = { Text("Are you sure you want to delete this transaction? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        transactionToDelete?.let { viewModel.deleteTransactions(listOf(it)) }
+                        transactionToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { transactionToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    val headerHeight = 220.dp
 
     // Sync ViewModel -> Pager
     LaunchedEffect(state.selectedTab) {
@@ -93,126 +122,9 @@ fun TransactionsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
-            .nestedScroll(nestedScrollConnection)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset { IntOffset(x = 0, y = headerOffsetHeightPx.value.roundToInt()) }
-        ) {
-            // FIXED HEADER (Stays consistent across tabs, but scrolls vertically)
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .height(headerHeight)
-            ) {
-                // Search overlay or Top bar
-                AnimatedVisibility(
-                    visible = state.isSearchActive,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    SearchBar(
-                        query = state.searchQuery,
-                        onQueryChange = viewModel::updateSearchQuery,
-                        onClose = viewModel::toggleSearch
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = !state.isSearchActive && !state.isSelectionMode,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    TransactionTopBar(
-                        monthYearText = state.monthDisplayText,
-                        isAmountVisible = state.isAmountVisible,
-                        onSearchClick = viewModel::toggleSearch,
-                        onToggleVisibility = viewModel::toggleAmountVisibility,
-                        onPreviousMonth = { viewModel.navigateMonth(-1) },
-                        onNextMonth = { viewModel.navigateMonth(1) }
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = state.isSelectionMode,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    SelectionTopBar(
-                        selectedCount = state.selectedTransactionIds.size,
-                        onClearSelection = viewModel::clearSelection
-                    )
-                }
-
-                // Stats row
-                AnimatedVisibility(visible = !state.isSearchActive) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        StatCard(
-                            label = stringResource(R.string.income),
-                            amount = state.totalIncome,
-                            isAmountVisible = state.isAmountVisible,
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            label = stringResource(R.string.expense),
-                            amount = state.totalExpense,
-                            isAmountVisible = state.isAmountVisible,
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            label = "Total",
-                            amount = state.total,
-                            isAmountVisible = state.isAmountVisible,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                // Tabs
-                if (!state.isSearchActive) {
-                    val tabs = listOf("Daily", "Calendar", "Weekly", "Monthly", "Summary")
-                    ScrollableTabRow(
-                        selectedTabIndex = pagerState.targetPage,
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                        edgePadding = 16.dp,
-                        divider = {},
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        tabs.forEachIndexed { index, title ->
-                            Tab(
-                                selected = pagerState.targetPage == index,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(index)
-                                    }
-                                },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = if (pagerState.targetPage == index) FontWeight.SemiBold else FontWeight.Normal,
-                                        color = if (pagerState.targetPage == index) {
-                                            MaterialTheme.colorScheme.onBackground
-                                        } else {
-                                            ManifestThemeTokens.colors.textTertiary
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-
-            // CONTENT (Only this part swipes)
+        // CONTENT (Only this part swipes)
+        Box(modifier = Modifier.fillMaxSize()) {
             if (state.isSearchActive) {
                 SearchResults(
                     results = state.searchResults,
@@ -220,7 +132,8 @@ fun TransactionsScreen(
                     selectedIds = state.selectedTransactionIds,
                     onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
                     onTransactionLongClick = viewModel::toggleSelection,
-                    onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                    onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) },
+                    headerHeight = headerHeight
                 )
             } else {
                 HorizontalPager(
@@ -236,26 +149,154 @@ fun TransactionsScreen(
                             selectedIds = state.selectedTransactionIds,
                             onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
                             onTransactionLongClick = viewModel::toggleSelection,
-                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                            onDeleteTransaction = { transactionToDelete = it },
+                            headerHeight = headerHeight
                         )
                         1 -> TransactionsCalendar(
                             state = state,
                             onDateSelect = viewModel::selectCalendarDate,
                             onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
                             onTransactionLongClick = viewModel::toggleSelection,
-                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                            onDeleteTransaction = { transactionToDelete = it },
+                            headerHeight = headerHeight
                         )
                         2 -> TransactionsWeekly(
                             state = state,
                             onTransactionClick = { if (state.isSelectionMode) viewModel.toggleSelection(it) else onTransactionClick(it) },
                             onTransactionLongClick = viewModel::toggleSelection,
-                            onDeleteTransaction = { viewModel.deleteTransactions(listOf(it)) }
+                            onDeleteTransaction = { transactionToDelete = it },
+                            headerHeight = headerHeight
                         )
-                        3 -> TransactionsMonthly(state = state)
-                        4 -> TransactionsSummary(state = state)
+                        3 -> TransactionsMonthly(
+                            state = state,
+                            headerHeight = headerHeight
+                        )
                     }
                 }
             }
+        }
+
+        // FIXED HEADER (Stays consistent across tabs)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(headerHeight)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            // Search overlay or Top bar
+            AnimatedVisibility(
+                visible = state.isSearchActive,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                SearchBar(
+                    query = state.searchQuery,
+                    onQueryChange = viewModel::updateSearchQuery,
+                    onClose = viewModel::toggleSearch
+                )
+            }
+
+            AnimatedVisibility(
+                visible = !state.isSearchActive && !state.isSelectionMode,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                TransactionTopBar(
+                    monthYearText = state.monthDisplayText,
+                    isAmountVisible = state.isAmountVisible,
+                    onSearchClick = viewModel::toggleSearch,
+                    onToggleVisibility = viewModel::toggleAmountVisibility,
+                    onPreviousMonth = { viewModel.navigateMonth(-1) },
+                    onNextMonth = { viewModel.navigateMonth(1) }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = state.isSelectionMode,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                SelectionTopBar(
+                    selectedCount = state.selectedTransactionIds.size,
+                    onClearSelection = viewModel::clearSelection,
+                    onDeleteSelected = { showBulkDeleteConfirmation = true }
+                )
+            }
+
+            // Stats row
+            AnimatedVisibility(visible = !state.isSearchActive) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        label = stringResource(R.string.income),
+                        amount = state.totalIncome,
+                        isAmountVisible = state.isAmountVisible,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        label = stringResource(R.string.expense),
+                        amount = state.totalExpense,
+                        isAmountVisible = state.isAmountVisible,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        label = "Total",
+                        amount = state.total,
+                        isAmountVisible = state.isAmountVisible,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // Tabs
+            if (!state.isSearchActive) {
+                val tabs = listOf("Daily", "Calendar", "Weekly", "Monthly")
+                ScrollableTabRow(
+                    selectedTabIndex = pagerState.targetPage,
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                    edgePadding = 20.dp,
+                    divider = {},
+                    indicator = { tabPositions ->
+                        if (pagerState.targetPage < tabPositions.size) {
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.targetPage]),
+                                color = MaterialTheme.colorScheme.primary,
+                                height = 3.dp
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = pagerState.targetPage == index,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            text = {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = if (pagerState.targetPage == index) FontWeight.SemiBold else FontWeight.Normal,
+                                    color = if (pagerState.targetPage == index) {
+                                        MaterialTheme.colorScheme.onBackground
+                                    } else {
+                                        ManifestThemeTokens.colors.textTertiary
+                                    }
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         // Floating Filter Button
@@ -504,38 +545,43 @@ private fun DailyView(
     selectedIds: Set<String>,
     onTransactionClick: (String) -> Unit,
     onTransactionLongClick: (String) -> Unit,
-    onDeleteTransaction: (String) -> Unit
+    onDeleteTransaction: (String) -> Unit,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
-    if (groupedTransactions.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "📝",
-                    fontSize = 48.sp
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.no_transactions),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ManifestThemeTokens.colors.textSecondary
-                )
-                Text(
-                    text = stringResource(R.string.add_first_transaction),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ManifestThemeTokens.colors.textTertiary
-                )
-            }
-        }
-        return
-    }
-
     LazyColumn(
         contentPadding = PaddingValues(bottom = 120.dp),
         modifier = Modifier.fillMaxSize()
     ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
+        if (groupedTransactions.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier.fillParentMaxSize().padding(bottom = headerHeight),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "📝",
+                            fontSize = 48.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.no_transactions),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = ManifestThemeTokens.colors.textSecondary
+                        )
+                        Text(
+                            text = stringResource(R.string.add_first_transaction),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ManifestThemeTokens.colors.textTertiary
+                        )
+                    }
+                }
+            }
+            return@LazyColumn
+        }
+
         groupedTransactions.forEach { (isoDate, transactions) ->
             item(key = "header_$isoDate") {
                 DateHeader(
@@ -553,8 +599,8 @@ private fun DailyView(
                     confirmValueChange = {
                         if (it == SwipeToDismissBoxValue.EndToStart) {
                             onDeleteTransaction(item.id)
-                            true
-                        } else false
+                        }
+                        false // Keep item until confirmed
                     }
                 )
 
@@ -668,23 +714,28 @@ private fun SearchResults(
     selectedIds: Set<String>,
     onTransactionClick: (String) -> Unit,
     onTransactionLongClick: (String) -> Unit,
-    onDeleteTransaction: (String) -> Unit
+    onDeleteTransaction: (String) -> Unit,
+    headerHeight: androidx.compose.ui.unit.Dp
 ) {
-    if (results.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                stringResource(R.string.no_results),
-                style = MaterialTheme.typography.bodyMedium,
-                color = ManifestThemeTokens.colors.textSecondary
-            )
-        }
-        return
-    }
-
     LazyColumn(
         contentPadding = PaddingValues(bottom = 120.dp),
         modifier = Modifier.fillMaxSize()
     ) {
+        item { Spacer(modifier = Modifier.height(headerHeight)) }
+
+        if (results.isEmpty()) {
+            item {
+                Box(modifier = Modifier.fillParentMaxSize().padding(bottom = headerHeight), contentAlignment = Alignment.Center) {
+                    Text(
+                        stringResource(R.string.no_results),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ManifestThemeTokens.colors.textSecondary
+                    )
+                }
+            }
+            return@LazyColumn
+        }
+
         item {
             Text(
                 stringResource(R.string.results_count, results.size),
@@ -698,8 +749,8 @@ private fun SearchResults(
                 confirmValueChange = {
                     if (it == SwipeToDismissBoxValue.EndToStart) {
                         onDeleteTransaction(item.id)
-                        true
-                    } else false
+                    }
+                    false // Keep item until confirmed
                 }
             )
 
@@ -750,29 +801,40 @@ private fun SearchResults(
 @Composable
 fun SelectionTopBar(
     selectedCount: Int,
-    onClearSelection: () -> Unit
+    onClearSelection: () -> Unit,
+    onDeleteSelected: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onClearSelection) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onClearSelection) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Clear Selection",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Text(
+                text = stringResource(R.string.selected_count, selectedCount),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+        
+        IconButton(onClick = onDeleteSelected) {
             Icon(
-                Icons.Default.Close,
-                contentDescription = "Clear Selection",
+                Icons.Default.Delete,
+                contentDescription = "Delete Selected",
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
-        Text(
-            text = stringResource(R.string.selected_count, selectedCount),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.padding(start = 16.dp)
-        )
     }
 }
