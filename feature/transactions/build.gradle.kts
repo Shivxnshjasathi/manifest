@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.zincstate.manifest.feature.transactions"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

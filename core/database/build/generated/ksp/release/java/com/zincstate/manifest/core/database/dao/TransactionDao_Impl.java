@@ -64,7 +64,11 @@ public final class TransactionDao_Impl implements TransactionDao {
         statement.bindString(2, entity.getType());
         statement.bindDouble(3, entity.getAmount());
         statement.bindString(4, entity.getDate());
-        statement.bindString(5, entity.getCategoryId());
+        if (entity.getCategoryId() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getCategoryId());
+        }
         statement.bindString(6, entity.getAccountId());
         if (entity.getToAccountId() == null) {
           statement.bindNull(7);
@@ -121,7 +125,11 @@ public final class TransactionDao_Impl implements TransactionDao {
         statement.bindString(2, entity.getType());
         statement.bindDouble(3, entity.getAmount());
         statement.bindString(4, entity.getDate());
-        statement.bindString(5, entity.getCategoryId());
+        if (entity.getCategoryId() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindString(5, entity.getCategoryId());
+        }
         statement.bindString(6, entity.getAccountId());
         if (entity.getToAccountId() == null) {
           statement.bindNull(7);
@@ -303,7 +311,11 @@ public final class TransactionDao_Impl implements TransactionDao {
           final String _tmpDate;
           _tmpDate = cursor.getString(_cursorIndexOfDate);
           final String _tmpCategoryId;
-          _tmpCategoryId = cursor.getString(_cursorIndexOfCategoryId);
+          if (cursor.isNull(_cursorIndexOfCategoryId)) {
+            _tmpCategoryId = null;
+          } else {
+            _tmpCategoryId = cursor.getString(_cursorIndexOfCategoryId);
+          }
           final String _tmpAccountId;
           _tmpAccountId = cursor.getString(_cursorIndexOfAccountId);
           final String _tmpToAccountId;
@@ -393,7 +405,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -491,7 +507,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -586,7 +606,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -676,7 +700,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -785,7 +813,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -951,7 +983,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
@@ -1298,7 +1334,11 @@ public final class TransactionDao_Impl implements TransactionDao {
             final String _tmpDate;
             _tmpDate = _cursor.getString(_cursorIndexOfDate);
             final String _tmpCategoryId;
-            _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            }
             final String _tmpAccountId;
             _tmpAccountId = _cursor.getString(_cursorIndexOfAccountId);
             final String _tmpToAccountId;
