@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manifest — Privacy Policy & Legal Portal</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for clean structural glyphs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Clean Minimal Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f4f4f5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a1a1aa;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #71717a;
+    }
+    @media print {
+      header, footer, #mobileMenuBtn, #toast, #reportModal, .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .policy-card {
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 2rem !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-white text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white">
+
+  <!-- Toast Notification (Monochrome) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 max-w-sm hidden transform transition-all duration-200 translate-y-3">
+    <div class="flex items-center gap-3 bg-black text-white px-4 py-3 border border-zinc-700 shadow-lg">
+      <i class="fa-solid fa-check text-xs"></i>
+      <p id="toastMessage" class="text-xs font-medium"></p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white border-b border-zinc-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="#overview" class="flex items-center gap-2 text-black hover:opacity-80 transition-opacity">
+          <span class="font-bold text-lg tracking-tight">Manifest</span>
+          <span class="text-[11px] font-mono uppercase px-1.5 py-0.5 border border-zinc-300 text-zinc-600">Local-First</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-6 text-sm">
+          <a href="#overview" class="text-zinc-600 hover:text-black transition-colors">Overview</a>
+          <a href="#interface" class="text-zinc-600 hover:text-black transition-colors">Interface</a>
+          <a href="#privacy-policy" class="font-medium text-black border-b-2 border-black pb-0.5">Privacy Policy</a>
+          <a href="#contact" class="text-zinc-600 hover:text-black transition-colors">Contact</a>
+        </nav>
+
+        <!-- Right Header Actions -->
+        <div class="flex items-center gap-3">
+          <button onclick="openReportModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-800 bg-zinc-100 hover:bg-zinc-200 border border-zinc-300 transition-colors">
+            Report Issue
+          </button>
+          
+          <a href="https://money-manager-three-red.vercel.app/transactions" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-black hover:bg-zinc-800 transition-colors">
+            <span>Launch Web App</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuBtn" aria-label="Toggle navigation" class="md:hidden p-1.5 text-zinc-700 hover:text-black">
+            <i class="fa-solid fa-bars text-base"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Dropdown -->
+      <div id="mobileMenu" class="hidden md:hidden py-3 border-t border-zinc-200 text-sm">
+        <div class="flex flex-col space-y-2.5">
+          <a href="#overview" class="text-zinc-600 hover:text-black py-1">Overview</a>
+          <a href="#interface" class="text-zinc-600 hover:text-black py-1">Interface</a>
+          <a href="#privacy-policy" class="font-medium text-black py-1">Privacy Policy</a>
+          <a href="#contact" class="text-zinc-600 hover:text-black py-1">Contact</a>
+          <button onclick="openReportModal()" class="text-left text-xs font-medium py-1.5 text-zinc-700 hover:text-black">
+            Report Issue
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+    <section id="overview" class="py-14 sm:py-18 border-b border-zinc-200 bg-white">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        
+        <div class="max-w-3xl space-y-4">
+          <p class="text-xs font-mono uppercase tracking-widest text-zinc-500">
+            Automated Money Manager &bull; On-Device Architecture
+          </p>
+
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-black">
+            Financial Clarity, Automated.
+          </h1>
+
+          <p class="text-base sm:text-lg text-zinc-600 leading-relaxed pt-1">
+            Manifest is a modern, privacy-centric, and automated money manager built for individuals who demand financial clarity without the manual labor. It bridges the gap between complex accounting software and overly simple tracking apps, delivering a premium Material 3 experience that lives entirely on your device.
+          </p>
+
+          <!-- Simple Spec Badges -->
+          <div class="pt-4 flex flex-wrap gap-2 text-xs font-mono text-zinc-700">
+            <span class="px-2.5 py-1 bg-zinc-100 border border-zinc-300">100% On-Device DB</span>
+            <span class="px-2.5 py-1 bg-zinc-100 border border-zinc-300">Local SMS Parser</span>
+            <span class="px-2.5 py-1 bg-zinc-100 border border-zinc-300">Encrypted Google Drive Sync</span>
+            <span class="px-2.5 py-1 bg-zinc-100 border border-zinc-300">Zero Analytics Trackers</span>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="pt-4 flex flex-wrap items-center gap-3">
+            <a href="#privacy-policy" class="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-zinc-800 transition-colors">
+              Read Privacy Policy
+            </a>
+            <a href="https://money-manager-three-red.vercel.app/transactions" target="_blank" rel="noopener noreferrer" class="px-4 py-2 border border-zinc-400 text-black text-xs font-medium hover:bg-zinc-100 transition-colors">
+              Open Transaction Portal &rarr;
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="interface" class="py-14 border-b border-zinc-200 bg-zinc-50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        
+        <div class="mb-8">
+          <span class="text-xs font-mono uppercase tracking-wider text-zinc-500">Material 3 Experience</span>
+          <h2 class="text-2xl font-bold text-black mt-1">Built Entirely On Your Device</h2>
+          <p class="text-sm text-zinc-600 mt-1">Engineered for maximum speed and absolute privacy. No complex accounting clutter, no manual tracking labor.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5">
+          
+          <!-- Card 1 -->
+          <div class="p-5 bg-white border border-zinc-300 flex flex-col justify-between">
+            <div>
+              <div class="text-xs font-mono uppercase text-zinc-400 mb-2">01 / Architecture</div>
+              <h3 class="text-base font-semibold text-black mb-2">On-Device Privacy & Management</h3>
+              <p class="text-xs text-zinc-600 leading-relaxed">
+                Experience an intuitive interface that lives entirely on your device with complete data security, cloud backup configuration, and automated goal setting.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-zinc-200 text-[11px] font-mono text-zinc-500">
+              Local SQLite Sandbox
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="p-5 bg-white border border-zinc-300 flex flex-col justify-between">
+            <div>
+              <div class="text-xs font-mono uppercase text-zinc-400 mb-2">02 / Analytics</div>
+              <h3 class="text-base font-semibold text-black mb-2">Automated Metrics & Calendar</h3>
+              <p class="text-xs text-zinc-600 leading-relaxed">
+                Gain instantaneous clarity into monthly totals, daily entries, and category metrics with our high-contrast Material 3 calendar layout.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-zinc-200 text-[11px] font-mono text-zinc-500">
+              In-Memory Calculations
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-5 bg-white border border-zinc-300 flex flex-col justify-between">
+            <div>
+              <div class="text-xs font-mono uppercase text-zinc-400 mb-2">03 / Storage</div>
+              <h3 class="text-base font-semibold text-black mb-2">User Cloud Sync</h3>
+              <p class="text-xs text-zinc-600 leading-relaxed">
+                Optional encrypted database backups stored exclusively in your own Google Drive. Zincstate developers never receive your decryption keys or files.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-zinc-200 text-[11px] font-mono text-zinc-500">
+              User-Owned Drive API
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="privacy-policy" class="py-14 bg-white">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        
+        <!-- Header -->
+        <div class="pb-6 border-b border-zinc-300 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+          <div>
+            <span class="text-xs font-mono uppercase text-zinc-500">Legal & Compliance Documentation</span>
+            <h2 class="text-2xl sm:text-3xl font-bold text-black mt-1">Manifest Privacy Policy</h2>
+            <p class="text-xs font-mono text-zinc-600 mt-1">
+              Last Updated: October 2023 &bull; Developed by Zincstate &bull; Status: Active
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 no-print">
+            <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium border border-zinc-300 hover:bg-zinc-100 transition-colors">
+              Print Policy
+            </button>
+            <button onclick="copyPolicyLink()" class="px-3 py-1.5 text-xs font-medium border border-zinc-300 hover:bg-zinc-100 transition-colors">
+              Share Link
+            </button>
+          </div>
+        </div>
+
+        <!-- Search / Filter Input -->
+        <div class="my-6 no-print">
+          <div class="relative max-w-md">
+            <input 
+              type="text" 
+              id="policySearch" 
+              placeholder="Search policy clauses (e.g. SMS, Google Drive, GDPR)..."
+              class="w-full px-3 py-2 text-xs border border-zinc-300 bg-white placeholder-zinc-400 focus:outline-none focus:border-black"
+            >
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-mono text-zinc-500 hover:text-black">
+              Clear
+            </button>
+          </div>
+          <div id="searchCounter" class="text-xs font-mono text-zinc-500 mt-2 hidden"></div>
+        </div>
+
+        <!-- Legal Clauses Container -->
+        <div class="space-y-8" id="policyContent">
+          
+          <!-- Clause 1 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 01</div>
+            <h3 class="text-lg font-bold text-black mb-3">1. Introduction</h3>
+            <div class="text-sm text-zinc-700 leading-relaxed space-y-3">
+              <p>
+                Welcome to <strong>Manifest</strong>, a personal finance management application developed by <strong>Zincstate</strong> ("we", "us", or "our"). We are committed to protecting your personal information and your right to privacy.
+              </p>
+              <p>
+                This Privacy Policy applies to all information collected through our mobile application (<strong>Manifest</strong>) and any related services. Manifest is designed from the ground up as a <strong>local-first application</strong>, prioritizing your privacy by keeping your data on your device.
+              </p>
+            </div>
+          </article>
+
+          <!-- Clause 2 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 02</div>
+            <h3 class="text-lg font-bold text-black mb-3">2. Information We Collect</h3>
+            <div class="text-sm text-zinc-700 leading-relaxed space-y-4">
+              <p>
+                Manifest is engineered as a local-first application. We prioritize your privacy by keeping your data strictly on your device:
+              </p>
+
+              <div class="space-y-3 pl-3 border-l-2 border-zinc-300">
+                <div>
+                  <h4 class="font-semibold text-black">Financial Data</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    We collect transaction history, account balances, and budget details that you manually enter or import via SMS. <strong>This data is stored locally on your device.</strong>
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-black">SMS Data (Local Parsing Only)</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    If you grant SMS permissions, the app parses financial SMS messages locally to automate expense tracking. <strong>We do NOT upload your SMS content to our servers.</strong> All text parsing algorithms run in-memory on your handset.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-black">Cloud Backups (Google Drive)</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    If you enable Google Drive backups, we use your Google account to store an encrypted backup of your database in your own Google Drive. We do not have access to this data outside of the app's backup/restore functionality.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Clause 3 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 03</div>
+            <h3 class="text-lg font-bold text-black mb-3">3. Purpose of Processing</h3>
+            <div class="text-sm text-zinc-700 leading-relaxed space-y-3">
+              <p>We use your data locally on your device solely to:</p>
+              <ul class="list-disc pl-5 space-y-1.5 text-xs text-zinc-700">
+                <li>Provide personal finance tracking and analysis.</li>
+                <li>Automate transaction entry from banking SMS notifications.</li>
+                <li>Provide user-directed data backup and restoration services.</li>
+                <li>Improve app performance and user experience locally on device.</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Clause 4 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 04</div>
+            <h3 class="text-lg font-bold text-black mb-3">4. Global Compliance</h3>
+            <div class="text-sm text-zinc-700 leading-relaxed space-y-4">
+              <div class="space-y-3 pl-3 border-l-2 border-zinc-300">
+                <div>
+                  <h4 class="font-semibold text-black">GDPR (European Union)</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    If you are from the European Economic Area, our legal basis for collecting and using personal information depends on the Personal Information we collect and the specific context in which we collect it. You retain the right to access, update, export, or delete your data at any time via device storage controls.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-black">India (IT Act & SPDI Rules)</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    We comply with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011. Data remains in user-owned sandboxes, eliminating remote interception risk.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-black">US (CCPA / CPRA)</h4>
+                  <p class="text-xs text-zinc-600 mt-0.5">
+                    <strong>We do not sell your personal information.</strong> We have never monetized user telemetry or personal records. We respect your statutory rights to inspect and delete data.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Clause 5 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 05</div>
+            <h3 class="text-lg font-bold text-black mb-3">5. Data Security</h3>
+            <div class="text-sm text-zinc-700 leading-relaxed space-y-2">
+              <p>
+                We implement industry-standard security measures to protect your data. Since most data is stored locally, its security also depends on your device's security (e.g., strong screen lock, PIN, biometric lock).
+              </p>
+              <p class="text-xs text-zinc-500 font-mono">
+                Notice: Zincstate does not hold master keys or remote copies of your SQLite database.
+              </p>
+            </div>
+          </article>
+
+          <!-- Clause 6 -->
+          <article class="policy-card border border-zinc-200 p-6 bg-white">
+            <div class="text-xs font-mono text-zinc-400 uppercase mb-1">Clause 06</div>
+            <h3 class="text-lg font-bold text-black mb-3">6. Developer & Contact Information</h3>
+            <p class="text-sm text-zinc-700 mb-4">
+              For any queries regarding this Privacy Policy, Google Play Store compliance, or data protection, please contact us:
+            </p>
+
+            <div class="grid sm:grid-cols-2 gap-4 text-xs font-mono">
+              
+              <div class="p-3 border border-zinc-300 bg-zinc-50">
+                <div class="text-zinc-500 uppercase text-[10px]">Email</div>
+                <div class="font-bold text-black mt-1 break-all">contact.zincstate@gmail.com</div>
+                <div class="mt-2">
+                  <button onclick="copyToClipboard('contact.zincstate@gmail.com', 'Email copied!')" class="underline text-black hover:text-zinc-600">
+                    Copy Email
+                  </button>
+                </div>
+              </div>
+
+              <div class="p-3 border border-zinc-300 bg-zinc-50">
+                <div class="text-zinc-500 uppercase text-[10px]">Developer & Jurisdiction</div>
+                <div class="font-bold text-black mt-1">Zincstate &bull; India</div>
+                <div class="text-zinc-500 mt-2">Response within 30 days</div>
+              </div>
+
+            </div>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Simple Report Issue Modal -->
+  <div id="reportModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-none flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-white border-2 border-black p-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-200">
+        <h4 class="text-sm font-bold uppercase tracking-wide text-black">Report Legal or TOS Issue</h4>
+        <button onclick="closeReportModal()" class="text-zinc-500 hover:text-black text-sm p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="reportForm" onsubmit="handleReportSubmit(event)" class="mt-4 space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-zinc-700 uppercase tracking-wider text-[10px] mb-1">Issue Type</label>
+          <select id="issueType" required class="w-full px-2.5 py-2 border border-zinc-300 bg-white focus:outline-none focus:border-black">
+            <option value="privacy">Privacy & Data Inquiry</option>
+            <option value="tos">Terms of Service Question</option>
+            <option value="playstore">Play Store Policy Notice</option>
+            <option value="security">Security Vulnerability</option>
+            <option value="other">Other Legal Inquiry</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-700 uppercase tracking-wider text-[10px] mb-1">Your Email</label>
+          <input type="email" id="reporterEmail" required placeholder="contact@example.com" class="w-full px-2.5 py-2 border border-zinc-300 focus:outline-none focus:border-black">
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-700 uppercase tracking-wider text-[10px] mb-1">Subject</label>
+          <input type="text" id="reportSubject" required placeholder="Brief description of the issue" class="w-full px-2.5 py-2 border border-zinc-300 focus:outline-none focus:border-black">
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-700 uppercase tracking-wider text-[10px] mb-1">Explanation</label>
+          <textarea id="reportDetails" rows="3" required placeholder="Provide details regarding the clause or inquiry..." class="w-full px-2.5 py-2 border border-zinc-300 focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeReportModal()" class="px-3 py-1.5 border border-zinc-300 hover:bg-zinc-100 text-black">
+            Cancel
+          </button>
+          <button type="submit" class="px-3 py-1.5 bg-black text-white hover:bg-zinc-800">
+            Submit Notice
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Monochrome Footer -->
+  <footer id="contact" class="bg-zinc-900 text-zinc-300 py-12 border-t border-zinc-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 pb-8 border-b border-zinc-800 text-xs">
+        
+        <!-- Col 1 -->
+        <div class="space-y-2">
+          <div class="font-bold text-white text-sm">Manifest</div>
+          <p class="text-zinc-400 leading-relaxed">
+            Financial Clarity, Automated. A local-first money manager engineered by Zincstate.
+          </p>
+          <div class="text-[11px] font-mono text-zinc-500">
+            Built with Material 3 Principles
+          </div>
+        </div>
+
+        <!-- Col 2 -->
+        <div class="space-y-2">
+          <div class="font-bold text-white text-xs uppercase tracking-wider">Navigation</div>
+          <ul class="space-y-1 text-zinc-400">
+            <li><a href="#overview" class="hover:text-white">Overview</a></li>
+            <li><a href="#interface" class="hover:text-white">Interface & Storage</a></li>
+            <li><a href="#privacy-policy" class="hover:text-white">Privacy Policy</a></li>
+            <li><a href="https://money-manager-three-red.vercel.app/transactions" target="_blank" class="hover:text-white underline">Web Application &rarr;</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3 -->
+        <div class="space-y-2">
+          <div class="font-bold text-white text-xs uppercase tracking-wider">Legal & Compliance</div>
+          <p class="text-zinc-400">Developer: Zincstate</p>
+          <p class="text-zinc-400">Location: India</p>
+          <p class="text-zinc-400 font-mono">contact.zincstate@gmail.com</p>
+          <div class="pt-1">
+            <button onclick="openReportModal()" class="text-white underline hover:text-zinc-300">
+              Report legal or TOS issue
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500">
+        <div>
+          &copy; <span id="yearSpan"></span> Manifest &bull; Zincstate. All rights reserved.
+        </div>
+        <div class="text-[11px] font-mono text-zinc-400">
+          Senior-led teams &bull; Strategy before pixels &bull; Iterative craft
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    // Current Year
+    document.getElementById('yearSpan').innerText = new Date().getFullYear();
+
+    // Mobile Navigation Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Close mobile menu on anchor click
+    document.querySelectorAll('#mobileMenu a').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    // Interactive Search / Filter
+    const searchInput = document.getElementById('policySearch');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const searchCounter = document.getElementById('searchCounter');
+    const policyCards = document.querySelectorAll('.policy-card');
+
+    searchInput.addEventListener('input', function(e) {
+      const term = e.target.value.toLowerCase().trim();
+      let matches = 0;
+
+      if (term.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+        searchCounter.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+        searchCounter.classList.add('hidden');
+      }
+
+      policyCards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        if (text.includes(term)) {
+          card.style.display = 'block';
+          matches++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (term.length > 0) {
+        searchCounter.innerText = `Found ${matches} of ${policyCards.length} clauses matching "${term}"`;
+      }
+    });
+
+    function clearSearch() {
+      searchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      searchCounter.classList.add('hidden');
+      policyCards.forEach(card => card.style.display = 'block');
+    }
+
+    // Modal Controls
+    function openReportModal() {
+      document.getElementById('reportModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeReportModal() {
+      document.getElementById('reportModal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleReportSubmit(e) {
+      e.preventDefault();
+      const subject = document.getElementById('reportSubject').value;
+      const email = document.getElementById('reporterEmail').value;
+      
+      closeReportModal();
+      document.getElementById('reportForm').reset();
+      
+      showToast(`Notice received for "${subject}". Zincstate will reply to ${email} within 30 days.`);
+    }
+
+    // Toast without alert()
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      toastMessage.innerText = message;
+      toast.classList.remove('hidden');
+      toast.classList.remove('translate-y-3');
+      
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-3');
+        setTimeout(() => toast.classList.add('hidden'), 200);
+      }, 4000);
+    }
+
+    // Safe clipboard copy fallback
+    function copyToClipboard(text, successMsg = 'Copied!') {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      
+      try {
+        const success = document.execCommand('copy');
+        showToast(success ? successMsg : 'Copy failed.');
+      } catch (e) {
+        showToast('Clipboard unavailable');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function copyPolicyLink() {
+      const url = window.location.href.split('#')[0] + '#privacy-policy';
+      copyToClipboard(url, 'Policy link copied to clipboard!');
+    }
+  </script>
+</body>
+</html>
