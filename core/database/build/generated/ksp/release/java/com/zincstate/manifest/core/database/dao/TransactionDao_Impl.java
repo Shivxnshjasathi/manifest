@@ -54,7 +54,7 @@ public final class TransactionDao_Impl implements TransactionDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `transactions` (`id`,`type`,`amount`,`date`,`categoryId`,`accountId`,`toAccountId`,`note`,`description`,`attachmentPath`,`superCategory`,`isSettled`,`recurringId`,`createdAt`,`updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `transactions` (`id`,`type`,`amount`,`date`,`categoryId`,`accountId`,`toAccountId`,`note`,`description`,`attachmentPath`,`tags`,`superCategory`,`isSettled`,`recurringId`,`createdAt`,`updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -82,20 +82,21 @@ public final class TransactionDao_Impl implements TransactionDao {
         } else {
           statement.bindString(10, entity.getAttachmentPath());
         }
+        statement.bindString(11, entity.getTags());
         if (entity.getSuperCategory() == null) {
-          statement.bindNull(11);
+          statement.bindNull(12);
         } else {
-          statement.bindString(11, entity.getSuperCategory());
+          statement.bindString(12, entity.getSuperCategory());
         }
         final int _tmp = entity.isSettled() ? 1 : 0;
-        statement.bindLong(12, _tmp);
+        statement.bindLong(13, _tmp);
         if (entity.getRecurringId() == null) {
-          statement.bindNull(13);
+          statement.bindNull(14);
         } else {
-          statement.bindString(13, entity.getRecurringId());
+          statement.bindString(14, entity.getRecurringId());
         }
-        statement.bindLong(14, entity.getCreatedAt());
-        statement.bindLong(15, entity.getUpdatedAt());
+        statement.bindLong(15, entity.getCreatedAt());
+        statement.bindLong(16, entity.getUpdatedAt());
       }
     };
     this.__deletionAdapterOfTransactionEntity = new EntityDeletionOrUpdateAdapter<TransactionEntity>(__db) {
@@ -115,7 +116,7 @@ public final class TransactionDao_Impl implements TransactionDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `transactions` SET `id` = ?,`type` = ?,`amount` = ?,`date` = ?,`categoryId` = ?,`accountId` = ?,`toAccountId` = ?,`note` = ?,`description` = ?,`attachmentPath` = ?,`superCategory` = ?,`isSettled` = ?,`recurringId` = ?,`createdAt` = ?,`updatedAt` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `transactions` SET `id` = ?,`type` = ?,`amount` = ?,`date` = ?,`categoryId` = ?,`accountId` = ?,`toAccountId` = ?,`note` = ?,`description` = ?,`attachmentPath` = ?,`tags` = ?,`superCategory` = ?,`isSettled` = ?,`recurringId` = ?,`createdAt` = ?,`updatedAt` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -143,21 +144,22 @@ public final class TransactionDao_Impl implements TransactionDao {
         } else {
           statement.bindString(10, entity.getAttachmentPath());
         }
+        statement.bindString(11, entity.getTags());
         if (entity.getSuperCategory() == null) {
-          statement.bindNull(11);
+          statement.bindNull(12);
         } else {
-          statement.bindString(11, entity.getSuperCategory());
+          statement.bindString(12, entity.getSuperCategory());
         }
         final int _tmp = entity.isSettled() ? 1 : 0;
-        statement.bindLong(12, _tmp);
+        statement.bindLong(13, _tmp);
         if (entity.getRecurringId() == null) {
-          statement.bindNull(13);
+          statement.bindNull(14);
         } else {
-          statement.bindString(13, entity.getRecurringId());
+          statement.bindString(14, entity.getRecurringId());
         }
-        statement.bindLong(14, entity.getCreatedAt());
-        statement.bindLong(15, entity.getUpdatedAt());
-        statement.bindString(16, entity.getId());
+        statement.bindLong(15, entity.getCreatedAt());
+        statement.bindLong(16, entity.getUpdatedAt());
+        statement.bindString(17, entity.getId());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
@@ -294,6 +296,7 @@ public final class TransactionDao_Impl implements TransactionDao {
         final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(cursor, "note");
         final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(cursor, "description");
         final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(cursor, "attachmentPath");
+        final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(cursor, "tags");
         final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(cursor, "superCategory");
         final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(cursor, "isSettled");
         final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(cursor, "recurringId");
@@ -334,6 +337,8 @@ public final class TransactionDao_Impl implements TransactionDao {
           } else {
             _tmpAttachmentPath = cursor.getString(_cursorIndexOfAttachmentPath);
           }
+          final String _tmpTags;
+          _tmpTags = cursor.getString(_cursorIndexOfTags);
           final String _tmpSuperCategory;
           if (cursor.isNull(_cursorIndexOfSuperCategory)) {
             _tmpSuperCategory = null;
@@ -354,7 +359,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           _tmpCreatedAt = cursor.getLong(_cursorIndexOfCreatedAt);
           final long _tmpUpdatedAt;
           _tmpUpdatedAt = cursor.getLong(_cursorIndexOfUpdatedAt);
-          _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+          _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
           _result.add(_item);
         }
         return _result;
@@ -388,6 +393,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -428,6 +434,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -448,7 +456,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -490,6 +498,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -530,6 +539,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -550,7 +561,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -590,6 +601,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -629,6 +641,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -649,7 +663,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _result = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
           } else {
             _result = null;
           }
@@ -684,6 +698,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -723,6 +738,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -743,7 +760,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _result = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
           } else {
             _result = null;
           }
@@ -796,6 +813,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -836,6 +854,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -856,7 +876,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -966,6 +986,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -1006,6 +1027,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -1026,7 +1049,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -1317,6 +1340,7 @@ public final class TransactionDao_Impl implements TransactionDao {
           final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfAttachmentPath = CursorUtil.getColumnIndexOrThrow(_cursor, "attachmentPath");
+          final int _cursorIndexOfTags = CursorUtil.getColumnIndexOrThrow(_cursor, "tags");
           final int _cursorIndexOfSuperCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "superCategory");
           final int _cursorIndexOfIsSettled = CursorUtil.getColumnIndexOrThrow(_cursor, "isSettled");
           final int _cursorIndexOfRecurringId = CursorUtil.getColumnIndexOrThrow(_cursor, "recurringId");
@@ -1357,6 +1381,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             } else {
               _tmpAttachmentPath = _cursor.getString(_cursorIndexOfAttachmentPath);
             }
+            final String _tmpTags;
+            _tmpTags = _cursor.getString(_cursorIndexOfTags);
             final String _tmpSuperCategory;
             if (_cursor.isNull(_cursorIndexOfSuperCategory)) {
               _tmpSuperCategory = null;
@@ -1377,7 +1403,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new TransactionEntity(_tmpId,_tmpType,_tmpAmount,_tmpDate,_tmpCategoryId,_tmpAccountId,_tmpToAccountId,_tmpNote,_tmpDescription,_tmpAttachmentPath,_tmpTags,_tmpSuperCategory,_tmpIsSettled,_tmpRecurringId,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;

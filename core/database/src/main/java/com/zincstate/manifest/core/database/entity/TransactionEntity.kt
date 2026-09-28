@@ -24,6 +24,7 @@ data class TransactionEntity(
     val note: String = "",
     val description: String = "",
     val attachmentPath: String? = null,
+    val tags: String = "",
     val superCategory: String? = null, // NEEDS, WANTS, INVESTMENT
     val isSettled: Boolean = true,
     val recurringId: String? = null,

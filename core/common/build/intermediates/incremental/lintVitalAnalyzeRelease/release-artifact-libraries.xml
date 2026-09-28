@@ -14,9 +14,9 @@
       proguardRules="proguard.txt"/>
   <library
       name=":@@:core:database::release"
-      jars="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/baddf7e1a66c2701f7f23aa337a935c9/transformed/out/jars/classes.jar:/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/baddf7e1a66c2701f7f23aa337a935c9/transformed/out/jars/libs/R.jar"
+      jars="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/b86093af7aa0c1061b49b0be55ec7bbe/transformed/out/jars/classes.jar:/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/b86093af7aa0c1061b49b0be55ec7bbe/transformed/out/jars/libs/R.jar"
       resolved="Manifest.core:database:unspecified"
-      folder="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/baddf7e1a66c2701f7f23aa337a935c9/transformed/out"
+      folder="/Users/shivanshjasathi/.gradle/caches/9.4.1/transforms/b86093af7aa0c1061b49b0be55ec7bbe/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
