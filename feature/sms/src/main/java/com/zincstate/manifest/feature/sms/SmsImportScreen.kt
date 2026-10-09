@@ -143,7 +143,7 @@ fun SmsImportScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(state.parsedMessages, key = { it.smsId }) { item ->
+s(state.parsedMessages, key = { it.smsId }) { item ->
                         SmsItemRow(
                             item = item,
                             onToggle = { viewModel.toggleSelection(item.smsId) }

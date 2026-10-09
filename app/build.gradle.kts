@@ -112,6 +112,10 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
+    // Play Integrity
+    implementation(libs.google.play.integrity)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

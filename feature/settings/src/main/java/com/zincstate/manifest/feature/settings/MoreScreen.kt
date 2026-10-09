@@ -2,6 +2,8 @@ package com.zincstate.manifest.feature.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -231,7 +233,7 @@ private fun BackupCard(onBackupClick: () -> Unit) {
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f)
+                tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f,tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f)
             )
         }
     }

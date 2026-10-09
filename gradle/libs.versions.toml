@@ -47,6 +47,10 @@ gson = "2.12.1"
 # Material Components (for XML themes)
 material = "1.12.0"
 
+# Play Integrity
+playIntegrity = "1.4.0"
+coroutinesPlayServices = "1.7.3"
+
 [libraries]
 # Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -122,6 +126,10 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 
 # Material
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Play Integrity
+google-play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "playIntegrity" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

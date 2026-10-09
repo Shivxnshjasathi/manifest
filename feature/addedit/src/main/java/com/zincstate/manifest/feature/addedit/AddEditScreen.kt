@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Check
@@ -93,6 +92,7 @@ import com.zincstate.manifest.core.ui.components.DetailTopBar
 import com.zincstate.manifest.core.ui.theme.ManifestThemeTokens
 
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.ui.layout.ContentScale
@@ -424,8 +424,7 @@ fun AddEditScreen(
                                 innerTextField()
                             }
                         }
-                    )
-                }
+                    )                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
